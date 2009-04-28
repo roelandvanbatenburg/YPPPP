@@ -52,7 +52,7 @@ public class YPPPPModel {
 	 * @return string containing the damage, (max) when applicable and the max health
 	 */
 	public String getDamage(boolean me){
-		return oneDigit.format(getSimpleDamage(me)) + "/" + (getSimpleDamage(me) >= getFullHealth(me) ? "(max) " : "") + oneDigit.format((me ? getFullHealth(myShip) : getFullHealth(oppShip)));}
+		return oneDigit.format(getSimpleDamage(me)) + (getSimpleDamage(me) >= getFullHealth(me) ? "(max)" : "") + " / " + oneDigit.format((me ? getFullHealth(myShip) : getFullHealth(oppShip)));}
 	private double getFullHealth(boolean me){
 		return (me ? getFullHealth(myShip) : getFullHealth(oppShip));}
 	private double getFullHealth(YPPPPShip ship){
@@ -62,13 +62,17 @@ public class YPPPPModel {
 	private double getSimpleDamage(YPPPPShip ship){
 		return ship.damage;}
 	
+	/**
+	 * 
+	 * @param me true when the damage from the player, false when from the opponent is requested
+	 * @return string containing the damage and health in a special format
+	 */
 	public String getMoreInfo(boolean me){
 		return (me ? getMoreInfo(myShip) : getMoreInfo(oppShip));}
 	private String getMoreInfo(YPPPPShip ship){
-		return (lines ? oneDigit : twoDigit).format((lines ? 6 : 100) * ship.damage / (sinking ? ship.sink_hp : ship.sf_hp)) + (lines ? "/6.0" : "%");}
+		return ((ship.damage >= (sinking ? ship.sink_hp : ship.sf_hp)) ? "Max" : (lines ? oneDigit : twoDigit).format((lines ? 6 : 100) * ship.damage / (sinking ? ship.sink_hp : ship.sf_hp)) + (lines ? "/6.0" : "%"));}
 	
 	public String getCopyText() {
-		//return "Damage -> We: " + getDamage(true) + " ~ They: " + getDamage(false);
 		return "Damage -> We: " + getMoreInfo(true) + " ~ They: " + getMoreInfo(false);
 	}
 	

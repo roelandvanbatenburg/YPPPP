@@ -41,7 +41,7 @@ public class YPPPPView extends JFrame{
 	    try {
 	        UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 	      } catch (Exception e) {
-	        System.out.println("Special look failed to load!");
+	        System.out.println("Special look failed to load! No pretties for you :(");
 	      }
 		this.setTitle("YPPPP: Yohoho Puzzle Pirate Pillage Program");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
