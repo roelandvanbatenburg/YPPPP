@@ -47,7 +47,6 @@ public class YPPPPModel {
 	}
 	
 	/**
-	 * 
 	 * @param me true when the damage from the player, false when from the opponent is requested
 	 * @return string containing the damage, (max) when applicable and the max health
 	 */
@@ -63,7 +62,6 @@ public class YPPPPModel {
 		return ship.damage;}
 	
 	/**
-	 * 
 	 * @param me true when the damage from the player, false when from the opponent is requested
 	 * @return string containing the damage and health in a special format
 	 */
@@ -71,53 +69,86 @@ public class YPPPPModel {
 		return (me ? getMoreInfo(myShip) : getMoreInfo(oppShip));}
 	private String getMoreInfo(YPPPPShip ship){
 		return ((ship.damage >= (sinking ? ship.sink_hp : ship.sf_hp)) ? "Max" : (lines ? oneDigit : twoDigit).format((lines ? 6 : 100) * ship.damage / (sinking ? ship.sink_hp : ship.sf_hp)) + (lines ? "/6.0" : "%"));}
-	
+	/**
+	 * function to get the text for the clipboard
+	 * @return string with both damage counts
+	 */
 	public String getCopyText() {
 		return "Damage -> We: " + getMoreInfo(true) + " ~ They: " + getMoreInfo(false);
 	}
-	
+	/**
+	 * method to let one ship hit the other
+	 * @param me true when player gets shot, false when opponent
+	 */
 	public void shoot(boolean me)
 	{
 		(me ? myShip : oppShip).getShot((me ? oppShip : myShip).cb_damage);
 		Update();
 	}
+	/**
+	 * ships collide 
+	 */
+	//TODO: should be executed twice for a frontal collision, how do we tell the user this?
 	public void collide()
 	{
 		myShip.ram(oppShip);
 		oppShip.ram(myShip);
 		Update();
 	}
+	/**
+	 * method to let a ship hit the rocks
+	 * @param me true when player, false when opponent
+	 */
 	public void hitRocks(boolean me)
 	{
 		(me ? myShip : oppShip).hitRocks();
 		Update();
 	}
+	/**
+	 * clear the damage of the ships
+	 */
 	public void reset()
 	{
 		myShip.reset();
 		oppShip.reset();
 		Update();
 	}
+	/**
+	 * method to change whether we are sinking or not
+	 */
 	public void toggleSinking()
 	{
 		sinking = (sinking ? false : true);
 		Update();
 	}
+	/**
+	 * method to change whether we use lines or percentages
+	 */
 	public void toggleLines()
 	{
 		lines = (lines ? false : true);
 		Update();
 	}
+	/**
+	 * method to change the ship type
+	 * @param type new type
+	 * @param me true when player, false when opponent
+	 */
 	public void changeShipType(String type, boolean me)
 	{
 		(me ? myShip : oppShip).changeType(shipList.get(type));
 		Update();
 	}
+	/**
+	 * function to raise when something changed
+	 */
 	void Update()
 	{
-		// raise event?
 		view.Update();
 	}
+	/**
+	 * Read ship data from xml file
+	 */
 	void getShipData()
 	{
 		try {
@@ -133,6 +164,12 @@ public class YPPPPModel {
 			shipDataError = true;
 		}
 	}
+	/**
+	 * method to read a single ship
+	 * @param lst contains entry with data of a single ship
+	 * @param item to keep track of the order in the xml file
+	 * @return a ship
+	 */
 	private YPPPPShip readShip(NodeList lst, int item)
 	{
 		YPPPPSize size;
@@ -149,6 +186,13 @@ public class YPPPPModel {
 				new Double(readXMLItem(lst, item, "ram")), new Double(readXMLItem(lst, item, "sf")), new Double(readXMLItem(lst, item, "sink")),
 				new Double(readXMLItem(lst, item, "rock")), size);
 	}
+	/**
+	 * method to read a property from the xml-entry
+	 * @param lst contains entry with data of a single ship
+	 * @param item to keep track of the order in the xml file
+	 * @param name of the property
+	 * @return value of the property
+	 */
 	private String readXMLItem(NodeList lst, int item, String name)
 	{
 		Node node = lst.item(item);
@@ -157,7 +201,11 @@ public class YPPPPModel {
 		shipDataError = true;
 		return null;
 	}
-	
+	/**
+	 * return ship type
+	 * @param me true when player, false when opponent
+	 * @return string type
+	 */
 	public String getShipType(boolean me)
 	{
 		return (me ? myShip : oppShip).type;
