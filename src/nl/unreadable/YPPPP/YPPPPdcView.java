@@ -25,7 +25,7 @@ import javax.swing.UIManager;
 import nl.unreadable.YPPPP.model.YPPPPModel;
 
 
-public class YPPPPView extends JFrame{
+public class YPPPPdcView extends JFrame{
 	public static final long serialVersionUID = 9L;
 	
 	private YPPPPModel model;
@@ -35,7 +35,7 @@ public class YPPPPView extends JFrame{
 	private Clipboard systemClipboard;
 	private DecimalFormat shipName = new DecimalFormat("##00");
 	
-	public YPPPPView()
+	public YPPPPdcView()
 	{
 		JFrame.setDefaultLookAndFeelDecorated(true);	
 	    try {
@@ -43,7 +43,7 @@ public class YPPPPView extends JFrame{
 	      } catch (Exception e) {
 	        System.out.println("Special look failed to load! No pretties for you :(");
 	      }
-		this.setTitle("YPPPP: Yohoho Puzzle Pirate Pillage Program");
+		this.setTitle("Damage Counter of YPPPP: Yohoho Puzzle Pirate Pillage Program");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(365,180);
 		systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
