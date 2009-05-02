@@ -13,13 +13,18 @@ import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -31,7 +36,9 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import nl.unreadable.YPPPP.model.YPPPPPirate;
 
@@ -44,7 +51,8 @@ public class YPPPPpiView extends JFrame{
 	private JTable pirateTable;
 	private Hashtable<String, Integer[]> pirateData;
 	private String[] columnNames = {"Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Swordfighting", "Rumble", "DNav", "BNav", "TH"};	
-	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piQuitBut;
+	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piQuitBut, piDisableBut;
+	private JComboBox oceanChoice;
 	
 	private Clipboard systemClipboard;
 	
@@ -68,7 +76,7 @@ public class YPPPPpiView extends JFrame{
 	      }
 		this.setTitle("Pirate Informer of YPPPP: Yohoho Puzzle Pirate Pillage Program");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setSize(365,180);
+		this.setSize(365,400);
 		systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		
 		// Global box
@@ -80,7 +88,7 @@ public class YPPPPpiView extends JFrame{
 		JPanel nameBox = new JPanel();
 		nameBox.setLayout(new BoxLayout(nameBox, BoxLayout.LINE_AXIS));
 		nameLab = new JLabel("Pirate Name:"); nameBox.add(nameLab);
-		nameTxt = new JTextField("Sammyjean"); nameTxt.addKeyListener(new KeyAdapter() {public void keyPressed(KeyEvent evt) {int key = evt.getKeyCode(); if (key == KeyEvent.VK_ENTER) addPirate();}}); nameBox.add(nameTxt);
+		nameTxt = new JTextField("name"); nameTxt.addKeyListener(new KeyAdapter() {public void keyPressed(KeyEvent evt) {int key = evt.getKeyCode(); if (key == KeyEvent.VK_ENTER) addPirate();}}); nameBox.add(nameTxt);
 		piEnterBut = new JButton("Enter"); piEnterBut.addActionListener(new EnterHandler()); nameBox.add(piEnterBut);
 		allBox.add(nameBox);
 		
@@ -89,22 +97,44 @@ public class YPPPPpiView extends JFrame{
 		pirateTable = new JTable(new HashTableModel());
 		JScrollPane scrollPane = new JScrollPane(pirateTable);
 		pirateTable.setFillsViewportHeight(true);
-		TableCellRenderer renderer = new CustomTableCellRenderer();
-		try{
-			pirateTable.setDefaultRenderer( Class.forName( "java.lang.String" ), renderer );
-		} catch( ClassNotFoundException ex ){
-			System.out.println("not a string");
-		}
+		//TableCellRenderer renderer = new CustomTableCellRenderer();
+		TableCellRenderer head = new iconHeaderRenderer();
+		TableCellRenderer cell = new statTableCellRenderer();
+		
+		int cnt = 0;
+		for (Enumeration<TableColumn> e = pirateTable.getTableHeader().getColumnModel().getColumns(); e.hasMoreElements();){
+			TableColumn col = e.nextElement();
+			col.setHeaderRenderer(head);
+			col.setCellRenderer(cell);
+			col.setPreferredWidth(10);
+			switch (cnt){
+			case 0: col.setHeaderValue(new TextOrIcon("Name", null)); col.setPreferredWidth(100); break;
+			case 1:	col.setHeaderValue(new TextOrIcon("Gun", new ImageIcon("icons/gun.png"))); break;
+			case 2: col.setHeaderValue(new TextOrIcon("Bilge", new ImageIcon("icons/bilge.png"))); break;
+			case 3: col.setHeaderValue(new TextOrIcon("Sail", new ImageIcon("icons/sail.png"))); break;
+			case 4: col.setHeaderValue(new TextOrIcon("Rig", new ImageIcon("icons/rig.png"))); break;
+			case 5: col.setHeaderValue(new TextOrIcon("Carp", new ImageIcon("icons/carp.png"))); break;
+			case 6: col.setHeaderValue(new TextOrIcon("SF", new ImageIcon("icons/sf.png"))); break;
+			case 7: col.setHeaderValue(new TextOrIcon("Rumble", new ImageIcon("icons/rumble.png"))); break;
+			case 8: col.setHeaderValue(new TextOrIcon("Dnav", new ImageIcon("icons/dnav.png"))); break;
+			case 9: col.setHeaderValue(new TextOrIcon("Bnav", new ImageIcon("icons/bnav.png"))); break;
+			case 10: col.setHeaderValue(new TextOrIcon("TH", new ImageIcon("icons/th.png"))); break;
+			}
+			cnt++;
+		}		
+		
 
 		allBox.add(scrollPane);
 		
 		// Button box for few other options
 		JPanel buttonBox = new JPanel();
 		buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.LINE_AXIS));
-		piCopyBut = new JButton("Copy"); buttonBox.add(piCopyBut);
+		//piCopyBut = new JButton("Copy"); buttonBox.add(piCopyBut);
 		piDelBut = new JButton("Delete"); piDelBut.addActionListener(new ClearHandler()); buttonBox.add(piDelBut);
 		piClearBut = new JButton("Clear All"); piClearBut.addActionListener(new ClearAllHandler()); buttonBox.add(piClearBut);
+		piDisableBut = new JButton("Disable"); piDisableBut.addActionListener(new DisableHandler()); buttonBox.add(piDisableBut);
 		piQuitBut = new JButton("Exit"); piQuitBut.addActionListener(new ExitHandler()); buttonBox.add(piQuitBut);
+		String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); buttonBox.add(oceanChoice);		
 		allBox.add(buttonBox);
 		
 		content.add(allBox);
@@ -121,7 +151,8 @@ public class YPPPPpiView extends JFrame{
 		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH()};
 		//pirateData.put("Btza", test);
 		pirateData.put(nameTxt.getText(), test);
-		((HashTableModel) pirateTable.getModel()).fireTableRowsInserted(pirateTable.getModel().getRowCount()-1, pirateTable.getModel().getRowCount());
+		//((HashTableModel) pirateTable.getModel()).fireTableRowsInserted(pirateTable.getModel().getRowCount()-1, pirateTable.getModel().getRowCount());
+		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 	
 	private YPPPPPirate getPirateInfo(String name)
@@ -184,15 +215,26 @@ public class YPPPPpiView extends JFrame{
 	class ClearAllHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){clearAll();}
 	}
-
+	class DisableHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){Disable();}
+	}
+	class OceanChangeHandler implements ActionListener{
+		private JComboBox combobox;
+		OceanChangeHandler(JComboBox box){combobox = box; }
+		public void actionPerformed(ActionEvent e){ocean = (String) combobox.getSelectedItem();}
+	}
+	public void Disable(){
+		this.setEnabled(false);
+		this.setVisible(false);
+	}
 	public void clear(){
 		int index = pirateTable.getSelectedRow();
 		pirateData.remove(pirateTable.getValueAt(index,0));
-		((HashTableModel) pirateTable.getModel()).fireTableRowsDeleted(index, index);
+		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 	public void clearAll(){
 		pirateData.clear();
-		((HashTableModel) pirateTable.getModel()).fireTableRowsDeleted(0, pirateTable.getModel().getRowCount());
+		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 	public void Update()
 	{
@@ -210,53 +252,85 @@ public class YPPPPpiView extends JFrame{
 		}
 		public Object getValueAt(int row, int column){
 			int cnt = 0;
-			for (Enumeration<String> e = pirateData.keys(); e.hasMoreElements();){
+			Vector<String> keys = new Vector<String>(pirateData.keySet());
+			Collections.sort(keys);
+			for (Enumeration<String> e = keys.elements(); e.hasMoreElements();){
+				Object el = e.nextElement();
 				if (cnt == row){
-					if (column == 0)
-						return e.nextElement();
-					Integer [] dat = pirateData.get(e.nextElement());
-					return intToStat.get(dat[column-1]);
+					if (column == 0) // name
+						return el;
+					Integer [] dat = pirateData.get(el);
+					return dat[column-1];
 				}
 				cnt++;
 			}
 			// empty object	
 			return new Object();
 		}
-		public String getColumnName(int column){
-			return columnNames[column];
-		}
 	}
-	public class CustomTableCellRenderer extends DefaultTableCellRenderer 
+	public class statTableCellRenderer extends DefaultTableCellRenderer 
 	{
 		public static final long serialVersionUID = 9L;
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-			System.out.println(value);
-			if( value instanceof String ){
-				String type = (String) value;
-				System.out.println(type);
-				if (type.equals("Able")){
-					cell.setBackground(Color.BLACK);
-				} else if (type.equals("Distinguished")) {
-					cell.setBackground(Color.GRAY);
-				} else if (type.equals("Respected")){
-					cell.setBackground(Color.CYAN);
-				} else if (type.equals("Master")){
-					cell.setBackground(Color.BLUE);
-				} else if (type.equals("Renowned")){
-					cell.setBackground(Color.GREEN);
-				} else if (type.equals("Grand-Master")){
-					cell.setBackground(Color.YELLOW);
-				} else if (type.equals("Legendary")){
-					cell.setBackground(Color.ORANGE);
-				} else if (type.equals("Ultimate")){
-					cell.setBackground(Color.RED);
+			if( value instanceof Integer ){
+				Integer val = (Integer) value;
+				switch (val){
+				case 0: cell.setBackground(Color.WHITE); break;
+				case 1: cell.setBackground(Color.GRAY); break;
+				case 2: cell.setBackground(Color.CYAN); break;
+				case 3:	cell.setBackground(Color.BLUE); break;
+				case 4:	cell.setBackground(Color.GREEN); break;
+				case 5:	cell.setBackground(Color.YELLOW); break;
+				case 6: cell.setBackground(Color.ORANGE); break;
+				case 7: cell.setBackground(Color.RED); break;
 				}
 			}
+			else
+				cell.setBackground(Color.WHITE);
 			return cell;
 		}
 	}
-
+    // This class is used to hold the text and icon values
+    // used by the renderer that renders both text and icons
+	class TextOrIcon {
+    	TextOrIcon(String text, Icon icon) {
+        	this.text = text;
+            this.icon = icon;
+        }
+        String text;
+        Icon icon;
+	}
+	
+    // This customized renderer can render objects of the type TextandIcon
+	public class iconHeaderRenderer extends DefaultTableCellRenderer {
+		public static final long serialVersionUID = 9L;
+		public Component getTableCellRendererComponent(JTable table, Object value,boolean isSelected, boolean hasFocus, int row, int column) {
+            // Inherit the colors and font from the header component
+			if (table != null) {
+				JTableHeader header = table.getTableHeader();
+				if (header != null) {
+					setForeground(header.getForeground());
+					setBackground(header.getBackground());
+					setFont(header.getFont());
+				}
+			}
+			if (value instanceof TextOrIcon) {
+				Icon temp = ((TextOrIcon)value).icon;
+				setIcon(temp);
+				if (temp != null)
+					setText("");
+				else
+					setText(((TextOrIcon)value).text);
+			} else {
+				setText((value == null) ? "" : value.toString());
+				setIcon(null);
+			}
+			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+			setHorizontalAlignment(JLabel.CENTER);
+			return this;
+		}
+	};
 	class HashtableChanged implements TableModelListener{
 		public void tableChanged(TableModelEvent e){}
 	}

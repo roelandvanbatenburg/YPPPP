@@ -91,7 +91,7 @@ public class YPPPPdcView extends JFrame{
 		
 		JPanel buttonBox = new JPanel();
 		//buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.PAGE_AXIS));
-		buttonBox.setLayout(new GridLayout(6,1));
+		buttonBox.setLayout(new GridLayout(7,1));
 			JCheckBox sinkingCheck = new JCheckBox("Sinking");
 			sinkingCheck.addActionListener(new SinkingHandler());
 		buttonBox.add(sinkingCheck);
@@ -107,6 +107,9 @@ public class YPPPPdcView extends JFrame{
 			JButton copyButton = new JButton("Copy");
 			copyButton.addActionListener(new CopyHandler());
 		buttonBox.add(copyButton);
+			JButton disableButton = new JButton("Disable");
+			disableButton.addActionListener(new DisableHandler());
+		buttonBox.add(disableButton);
 			JButton quitButton = new JButton("Quit");
 			quitButton.addActionListener(new ExitHandler());
 		buttonBox.add(quitButton);
@@ -130,6 +133,13 @@ public class YPPPPdcView extends JFrame{
 	}
 	class CopyHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){systemClipboard.setContents(new StringSelection(model.getCopyText()), null);}
+	}
+	class DisableHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){Disable();}
+	}
+	public void Disable(){
+		this.setEnabled(false);
+		this.setVisible(false);
 	}
 	class ExitHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){System.exit(0);}
