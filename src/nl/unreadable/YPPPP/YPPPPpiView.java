@@ -33,15 +33,19 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import nl.unreadable.YPPPP.model.YPPPPPirate;
+
+import org.w3c.dom.Document;
 
 
 public class YPPPPpiView extends JFrame{
@@ -65,7 +69,8 @@ public class YPPPPpiView extends JFrame{
 	private BufferedReader in;
 	private String line;
 	
-	public String ocean = "cobalt";
+	private static String ocean = "cobalt";
+	private static boolean preferenceError;
 	
 	public YPPPPpiView()
 	{
@@ -79,6 +84,8 @@ public class YPPPPpiView extends JFrame{
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setSize(365,400);
 		systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		
+		getPreferences();
 		
 		// Global box
 		Container content = this.getContentPane();
@@ -135,7 +142,7 @@ public class YPPPPpiView extends JFrame{
 		piClearBut = new JButton("Clear All"); piClearBut.addActionListener(new ClearAllHandler()); buttonBox.add(piClearBut);
 		piDisableBut = new JButton("Disable"); piDisableBut.addActionListener(new DisableHandler()); buttonBox.add(piDisableBut);
 		piQuitBut = new JButton("Exit"); piQuitBut.addActionListener(new ExitHandler()); buttonBox.add(piQuitBut);
-		String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); buttonBox.add(oceanChoice);		
+		String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBox.add(oceanChoice);		
 		allBox.add(buttonBox);
 		
 		content.add(allBox);
@@ -143,13 +150,20 @@ public class YPPPPpiView extends JFrame{
 		statToInt.put("Able", 0); statToInt.put("Distinguished", 1); statToInt.put("Respected", 2); statToInt.put("Master", 3); statToInt.put("Renowned", 4); statToInt.put("Grand-Master", 5); statToInt.put("Legendary", 6); statToInt.put("Ultimate", 7);
 		intToStat = new Hashtable<Integer,String>();
 		intToStat.put(0, "Able"); intToStat.put(1, "Distinguished"); intToStat.put(2, "Respected"); intToStat.put(3, "Master"); intToStat.put(4, "Renowned"); intToStat.put(5, "Grand-Master"); intToStat.put(6, "Legendary"); intToStat.put(7, "Ultimate");
+		
+
 	}
+	
 	private TextOrIcon getIcon(String text, String icon){
 		File f = new File(icon);
 		TextOrIcon toi = new TextOrIcon(text, f.exists() ? new ImageIcon(icon) : null);
 		return toi;
 		
 	}
+	
+	/*
+	 * Adding pirates to table
+	 */
 	private void addPirate(){
 		YPPPPPirate p = new YPPPPPirate();
 		p = getPirateInfo(nameTxt.getText());
@@ -203,11 +217,33 @@ public class YPPPPpiView extends JFrame{
 		return statToInt.get(line.substring(tempMatch.end(), line.length()-12));
 	}
 
+	/*
+	 * XML reading and writing
+	 */
+	void getPreferences(){
+		try {
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
+			ocean = doc.getElementsByTagName("ocean").item(0).getChildNodes().item(0).getNodeValue();
+		} catch(Exception e){preferenceError = true;}
+	}
+	static void savePreferences(){
+		try {
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
+			doc.getElementsByTagName("ocean").item(0).getFirstChild().setNodeValue(ocean);
+			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult("preferences.xml"));
+		} catch(Exception e){preferenceError = true;}
+	}
+	/*
+	 * Button handlers
+	 */
 	class CopyHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){systemClipboard.setContents(new StringSelection("/job "+nameTxt.getText()), null);}
 	}
-	class ExitHandler implements ActionListener{
-		public void actionPerformed(ActionEvent e){System.exit(0);}
+	public static class ExitHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){
+			savePreferences();
+			System.exit(0);
+		}
 	}
 	class EnterHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){addPirate();}
@@ -239,10 +275,10 @@ public class YPPPPpiView extends JFrame{
 		pirateData.clear();
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
-	public void Update()
-	{
-	}
 
+	/**
+	 * Hashtable Stuff
+	 */
 	class HashTableModel extends AbstractTableModel {
 		public static final long serialVersionUID = 9L;
 		//private Hashtable<String, String[]> data; 
@@ -320,19 +356,8 @@ public class YPPPPpiView extends JFrame{
 			}
 			if (value instanceof TextOrIcon) {
 				Icon temp = ((TextOrIcon)value).icon;
-				System.out.print(temp + " ");
-				
-				if (temp != null){
-					setIcon(temp);
-					setText("");
-					System.out.println("icon");
-				}
-				else{
-					setText(((TextOrIcon)value).text);
-					System.out.print(((TextOrIcon)value).text + " ");
-					System.out.println("text");
-					setIcon(null);
-				}
+				setIcon(temp);				
+				setText(temp != null ? "" : ((TextOrIcon)value).text);
 			} else {
 				setText((value == null) ? "" : value.toString());
 				setIcon(null);
@@ -342,8 +367,7 @@ public class YPPPPpiView extends JFrame{
 			return this;
 		}
 	};
-	class HashtableChanged implements TableModelListener{
-		public void tableChanged(TableModelEvent e){}
-	}
+	
+	
 }
 

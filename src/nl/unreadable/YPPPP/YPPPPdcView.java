@@ -22,6 +22,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import nl.unreadable.YPPPP.YPPPPpiView.ExitHandler;
 import nl.unreadable.YPPPP.model.YPPPPModel;
 
 
@@ -140,9 +141,6 @@ public class YPPPPdcView extends JFrame{
 	public void Disable(){
 		this.setEnabled(false);
 		this.setVisible(false);
-	}
-	class ExitHandler implements ActionListener{
-		public void actionPerformed(ActionEvent e){System.exit(0);}
 	}
 	class ShipChangeHandler implements ActionListener{
 		private boolean me;
