@@ -55,8 +55,9 @@ public class YPPPPpiView extends JFrame{
 	private JLabel nameLab;
 	private JTable pirateTable;
 	private Hashtable<String, Integer[]> pirateData;
-	private String[] columnNames = {"Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Swordfighting", "Rumble", "DNav", "BNav", "TH"};	
-	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piQuitBut, piDisableBut;
+	private String[] columnNames = {"Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Swordfighting", "Rumble", "DNav", "BNav", "TH", "?"};
+	private Vector<String> blacklist,goldlist;
+	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piQuitBut, piDisableBut, piGoldBut, piBlackBut;
 	private JComboBox oceanChoice;
 	
 	private Clipboard systemClipboard;
@@ -69,8 +70,8 @@ public class YPPPPpiView extends JFrame{
 	private BufferedReader in;
 	private String line;
 	
-	private static String ocean = "cobalt";
-	private static boolean preferenceError;
+	private static String ocean = "midnight";
+	private static boolean preferenceError = false;
 	
 	public YPPPPpiView()
 	{
@@ -86,6 +87,10 @@ public class YPPPPpiView extends JFrame{
 		systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		
 		getPreferences();
+		if (preferenceError){
+			System.out.println("Error reading preference.xml");
+			preferenceError = true;
+		}
 		
 		// Global box
 		Container content = this.getContentPane();
@@ -127,6 +132,7 @@ public class YPPPPpiView extends JFrame{
 			case 8: col.setHeaderValue(getIcon("Dnav", "icons/dnav.png")); break;
 			case 9: col.setHeaderValue(getIcon("Bnav", "icons/bnav.png")); break;
 			case 10: col.setHeaderValue(getIcon("TH", "icons/th.png")); break;
+			case 11: col.setHeaderValue(getIcon("?", "icons/list.png")); break;
 			}
 			cnt++;
 		}		
@@ -134,15 +140,24 @@ public class YPPPPpiView extends JFrame{
 
 		allBox.add(scrollPane);
 		
-		// Button box for few other options
+		// Button box
 		JPanel buttonBox = new JPanel();
-		buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.LINE_AXIS));
-		piCopyBut = new JButton("Job-Copy"); piCopyBut.addActionListener(new CopyHandler()); buttonBox.add(piCopyBut);
-		piDelBut = new JButton("Delete"); piDelBut.addActionListener(new ClearHandler()); buttonBox.add(piDelBut);
-		piClearBut = new JButton("Clear All"); piClearBut.addActionListener(new ClearAllHandler()); buttonBox.add(piClearBut);
-		piDisableBut = new JButton("Disable"); piDisableBut.addActionListener(new DisableHandler()); buttonBox.add(piDisableBut);
-		piQuitBut = new JButton("Exit"); piQuitBut.addActionListener(new ExitHandler()); buttonBox.add(piQuitBut);
-		String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBox.add(oceanChoice);		
+		buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.PAGE_AXIS));
+			JPanel buttonBoxList = new JPanel();
+			buttonBoxList.setLayout(new BoxLayout(buttonBoxList, BoxLayout.LINE_AXIS));
+			piDelBut = new JButton("Delete"); piDelBut.addActionListener(new ClearHandler()); buttonBoxList.add(piDelBut);
+			piClearBut = new JButton("Clear All"); piClearBut.addActionListener(new ClearAllHandler()); buttonBoxList.add(piClearBut);
+			piDisableBut = new JButton("Disable"); piDisableBut.addActionListener(new DisableHandler()); buttonBoxList.add(piDisableBut);
+			piQuitBut = new JButton("Exit"); piQuitBut.addActionListener(new ExitHandler()); buttonBoxList.add(piQuitBut);
+			buttonBox.add(buttonBoxList);
+			
+			JPanel buttonBoxXO = new JPanel();
+			buttonBoxXO.setLayout(new BoxLayout(buttonBoxXO, BoxLayout.LINE_AXIS));
+			piCopyBut = new JButton("Job-Copy"); piCopyBut.addActionListener(new CopyHandler()); buttonBoxXO.add(piCopyBut);
+			piBlackBut = new JButton("Blacklist"); piBlackBut.addActionListener(new BlackListHandler()); buttonBoxXO.add(piBlackBut);
+			piGoldBut = new JButton("Goldlist"); piGoldBut.addActionListener(new GoldListHandler()); buttonBoxXO.add(piGoldBut);
+			String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBoxXO.add(oceanChoice);
+			buttonBox.add(buttonBoxXO);
 		allBox.add(buttonBox);
 		
 		content.add(allBox);
@@ -167,7 +182,7 @@ public class YPPPPpiView extends JFrame{
 	private void addPirate(){
 		YPPPPPirate p = new YPPPPPirate();
 		p = getPirateInfo(nameTxt.getText());
-		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH()};
+		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), 20};
 		pirateData.put(nameTxt.getText(), test);
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
@@ -222,6 +237,8 @@ public class YPPPPpiView extends JFrame{
 	 */
 	void getPreferences(){
 		try {
+			goldlist = new Vector<String>();
+			blacklist = new Vector<String>();
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
 			ocean = doc.getElementsByTagName("ocean").item(0).getChildNodes().item(0).getNodeValue();
 		} catch(Exception e){preferenceError = true;}
@@ -237,11 +254,14 @@ public class YPPPPpiView extends JFrame{
 	 * Button handlers
 	 */
 	class CopyHandler implements ActionListener{
-		public void actionPerformed(ActionEvent e){systemClipboard.setContents(new StringSelection("/job "+nameTxt.getText()), null);}
+		public void actionPerformed(ActionEvent e){systemClipboard.setContents(new StringSelection("/job "+pirateTable.getValueAt(pirateTable.getSelectedRow(),0)), null);}
 	}
 	public static class ExitHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){
 			savePreferences();
+			if (preferenceError){
+				System.out.println("Error writing to preference.xml");
+			}
 			System.exit(0);
 		}
 	}
@@ -262,20 +282,42 @@ public class YPPPPpiView extends JFrame{
 		OceanChangeHandler(JComboBox box){combobox = box; }
 		public void actionPerformed(ActionEvent e){ocean = (String) combobox.getSelectedItem();}
 	}
+	class BlackListHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){blacklist();}
+	}
+	class GoldListHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){goldlist();}
+	}
 	public void Disable(){
 		this.setEnabled(false);
 		this.setVisible(false);
 	}
-	public void clear(){
+	private void clear(){
 		int index = pirateTable.getSelectedRow();
 		pirateData.remove(pirateTable.getValueAt(index,0));
-		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
+		//((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
+		((HashTableModel) pirateTable.getModel()).fireTableRowsDeleted(index, index); 
 	}
-	public void clearAll(){
+	private void clearAll(){
 		pirateData.clear();
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
-
+	private void goldlist(){
+		int index = pirateTable.getSelectedRow();
+		String name = (String) pirateTable.getValueAt(index, 0);
+		goldlist.add(name);
+		Integer[] temp = pirateData.get(name);
+		temp[temp.length-1] = 10;
+		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 11);  
+	}
+	private void blacklist(){
+		int index = pirateTable.getSelectedRow();
+		String name = (String) pirateTable.getValueAt(index, 0);
+		blacklist.add(name);
+		Integer[] temp = pirateData.get(name);
+		temp[temp.length-1] = -1;
+		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 11);
+	}
 	/**
 	 * Hashtable Stuff
 	 */
@@ -314,19 +356,28 @@ public class YPPPPpiView extends JFrame{
 			Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if( value instanceof Integer ){
 				Integer val = (Integer) value;
+				setForeground(Color.BLACK);
 				switch (val){
-				case 0: cell.setBackground(Color.WHITE); break;
-				case 1: cell.setBackground(Color.GRAY); break;
-				case 2: cell.setBackground(Color.CYAN); break;
-				case 3:	cell.setBackground(Color.BLUE); break;
-				case 4:	cell.setBackground(Color.GREEN); break;
-				case 5:	cell.setBackground(Color.YELLOW); break;
-				case 6: cell.setBackground(Color.ORANGE); break;
-				case 7: cell.setBackground(Color.RED); break;
+				case 0: cell.setBackground(Color.WHITE); break; //Able
+				case 1: cell.setBackground(Color.GRAY); break;	//Dis
+				case 2: cell.setBackground(Color.CYAN); break;	//Res
+				case 3:	cell.setBackground(Color.BLUE); break;	//Mas
+				case 4:	cell.setBackground(Color.GREEN); break;	//Ren
+				case 5:	cell.setBackground(Color.YELLOW); break;//GM
+				case 6: cell.setBackground(Color.ORANGE); break;//Leg
+				case 7: cell.setBackground(Color.RED); break;	//Ult
+				case -1: cell.setForeground(Color.BLACK); 
+					cell.setBackground(Color.BLACK); break;		//Blacklist
+				case 10: cell.setForeground(Color.ORANGE); 
+					cell.setBackground(Color.YELLOW); break;	//Goldlist
+				case 20: cell.setForeground(Color.WHITE); 
+					cell.setBackground(Color.WHITE); break;		//no list
 				}
 			}
-			else
+			else{
+				cell.setForeground(Color.BLACK);
 				cell.setBackground(Color.WHITE);
+			}
 			return cell;
 		}
 	}
