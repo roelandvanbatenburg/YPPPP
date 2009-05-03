@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collections;
@@ -108,17 +109,17 @@ public class YPPPPpiView extends JFrame{
 			col.setCellRenderer(cell);
 			col.setPreferredWidth(10);
 			switch (cnt){
-			case 0: col.setHeaderValue(new TextOrIcon("Name", null)); col.setPreferredWidth(100); break;
-			case 1:	col.setHeaderValue(new TextOrIcon("Gun", new ImageIcon("icons/gun.png"))); break;
-			case 2: col.setHeaderValue(new TextOrIcon("Bilge", new ImageIcon("icons/bilge.png"))); break;
-			case 3: col.setHeaderValue(new TextOrIcon("Sail", new ImageIcon("icons/sail.png"))); break;
-			case 4: col.setHeaderValue(new TextOrIcon("Rig", new ImageIcon("icons/rig.png"))); break;
-			case 5: col.setHeaderValue(new TextOrIcon("Carp", new ImageIcon("icons/carp.png"))); break;
-			case 6: col.setHeaderValue(new TextOrIcon("SF", new ImageIcon("icons/sf.png"))); break;
-			case 7: col.setHeaderValue(new TextOrIcon("Rumble", new ImageIcon("icons/rumble.png"))); break;
-			case 8: col.setHeaderValue(new TextOrIcon("Dnav", new ImageIcon("icons/dnav.png"))); break;
-			case 9: col.setHeaderValue(new TextOrIcon("Bnav", new ImageIcon("icons/bnav.png"))); break;
-			case 10: col.setHeaderValue(new TextOrIcon("TH", new ImageIcon("icons/th.png"))); break;
+			case 0: col.setHeaderValue(getIcon("Name", "icons/name.png")); col.setPreferredWidth(100); break;
+			case 1:	col.setHeaderValue(getIcon("Gun", "icons/gun.png")); break;
+			case 2: col.setHeaderValue(getIcon("Bilge", "icons/bilge.png")); break;
+			case 3: col.setHeaderValue(getIcon("Sail", "icons/sail.png")); break;
+			case 4: col.setHeaderValue(getIcon("Rig", "icons/rig.png")); break;
+			case 5: col.setHeaderValue(getIcon("Carp", "icons/carp.png")); break;
+			case 6: col.setHeaderValue(getIcon("SF", "icons/sf.png")); break;
+			case 7: col.setHeaderValue(getIcon("Rumble", "icons/rumble.png")); break;
+			case 8: col.setHeaderValue(getIcon("Dnav", "icons/dnav.png")); break;
+			case 9: col.setHeaderValue(getIcon("Bnav", "icons/bnav.png")); break;
+			case 10: col.setHeaderValue(getIcon("TH", "icons/th.png")); break;
 			}
 			cnt++;
 		}		
@@ -129,7 +130,7 @@ public class YPPPPpiView extends JFrame{
 		// Button box for few other options
 		JPanel buttonBox = new JPanel();
 		buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.LINE_AXIS));
-		//piCopyBut = new JButton("Copy"); buttonBox.add(piCopyBut);
+		piCopyBut = new JButton("Job-Copy"); piCopyBut.addActionListener(new CopyHandler()); buttonBox.add(piCopyBut);
 		piDelBut = new JButton("Delete"); piDelBut.addActionListener(new ClearHandler()); buttonBox.add(piDelBut);
 		piClearBut = new JButton("Clear All"); piClearBut.addActionListener(new ClearAllHandler()); buttonBox.add(piClearBut);
 		piDisableBut = new JButton("Disable"); piDisableBut.addActionListener(new DisableHandler()); buttonBox.add(piDisableBut);
@@ -143,15 +144,17 @@ public class YPPPPpiView extends JFrame{
 		intToStat = new Hashtable<Integer,String>();
 		intToStat.put(0, "Able"); intToStat.put(1, "Distinguished"); intToStat.put(2, "Respected"); intToStat.put(3, "Master"); intToStat.put(4, "Renowned"); intToStat.put(5, "Grand-Master"); intToStat.put(6, "Legendary"); intToStat.put(7, "Ultimate");
 	}
-	
+	private TextOrIcon getIcon(String text, String icon){
+		File f = new File(icon);
+		TextOrIcon toi = new TextOrIcon(text, f.exists() ? new ImageIcon(icon) : null);
+		return toi;
+		
+	}
 	private void addPirate(){
-		//System.out.println(nameTxt.getText());
 		YPPPPPirate p = new YPPPPPirate();
 		p = getPirateInfo(nameTxt.getText());
 		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH()};
-		//pirateData.put("Btza", test);
 		pirateData.put(nameTxt.getText(), test);
-		//((HashTableModel) pirateTable.getModel()).fireTableRowsInserted(pirateTable.getModel().getRowCount()-1, pirateTable.getModel().getRowCount());
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 	
@@ -201,7 +204,7 @@ public class YPPPPpiView extends JFrame{
 	}
 
 	class CopyHandler implements ActionListener{
-		public void actionPerformed(ActionEvent e){systemClipboard.setContents(new StringSelection(""), null);}
+		public void actionPerformed(ActionEvent e){systemClipboard.setContents(new StringSelection("/job "+nameTxt.getText()), null);}
 	}
 	class ExitHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){System.exit(0);}
@@ -317,11 +320,19 @@ public class YPPPPpiView extends JFrame{
 			}
 			if (value instanceof TextOrIcon) {
 				Icon temp = ((TextOrIcon)value).icon;
-				setIcon(temp);
-				if (temp != null)
+				System.out.print(temp + " ");
+				
+				if (temp != null){
+					setIcon(temp);
 					setText("");
-				else
+					System.out.println("icon");
+				}
+				else{
 					setText(((TextOrIcon)value).text);
+					System.out.print(((TextOrIcon)value).text + " ");
+					System.out.println("text");
+					setIcon(null);
+				}
 			} else {
 				setText((value == null) ? "" : value.toString());
 				setIcon(null);
