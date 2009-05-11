@@ -40,7 +40,7 @@ public class YPPPPdcView extends JFrame{
 	{
 		JFrame.setDefaultLookAndFeelDecorated(true);	
 	    try {
-	        UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+	    	UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());	    	
 	      } catch (Exception e) {
 	        System.out.println("Special look failed to load! No pretties for you :(");
 	      }
