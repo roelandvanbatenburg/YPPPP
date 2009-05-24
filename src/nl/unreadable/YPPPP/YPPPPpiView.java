@@ -69,7 +69,7 @@ public class YPPPPpiView extends JFrame{
 	Matcher tempMatch;
 	private BufferedReader in;
 	private String line;
-	private int listVoid, listGold, listBlack;
+	private final int listVoid = 20, listGold = 10, listBlack = -1;
 	
 	private static String ocean = "midnight";
 	private static boolean preferenceError = false;
@@ -93,9 +93,7 @@ public class YPPPPpiView extends JFrame{
 			preferenceError = true;
 		}
 		
-		listVoid = 20;
-		listGold = 10;
-		listBlack = -1;
+		
 		
 		// Global box
 		Container content = this.getContentPane();
@@ -224,6 +222,10 @@ public class YPPPPpiView extends JFrame{
 		int stand = readStat(line);
 		// read till we get ocean-wide or we are at stat
 		while ((line = in.readLine()) != null && !line.contains("ocean-wide") && !line.contains("alt=\"" + nextStat + "\"></a></td>")){}
+		if (line.contains("ocean-wide")){
+			stand = readOceanStat(line);
+			in.readLine();
+		}
 		return stand;
 	}
 	int readStat(String line){
@@ -384,11 +386,11 @@ public class YPPPPpiView extends JFrame{
 				case 5:	cell.setBackground(Color.YELLOW); break;//GM
 				case 6: cell.setBackground(Color.ORANGE); break;//Leg
 				case 7: cell.setBackground(Color.RED); break;	//Ult
-				case -1: cell.setForeground(Color.BLACK); 
+				case listBlack: cell.setForeground(Color.BLACK); 
 					cell.setBackground(Color.BLACK); break;		//Blacklist
-				case 10: cell.setForeground(Color.YELLOW); 
+				case listGold: cell.setForeground(Color.YELLOW); 
 					cell.setBackground(Color.YELLOW); break;	//Goldlist
-				case 20: cell.setForeground(Color.WHITE); 
+				case listVoid: cell.setForeground(Color.WHITE); 
 					cell.setBackground(Color.WHITE); break;		//no list
 				}
 			}
