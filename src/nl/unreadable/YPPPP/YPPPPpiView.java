@@ -69,6 +69,7 @@ public class YPPPPpiView extends JFrame{
 	Matcher tempMatch;
 	private BufferedReader in;
 	private String line;
+	private int listVoid, listGold, listBlack;
 	
 	private static String ocean = "midnight";
 	private static boolean preferenceError = false;
@@ -91,6 +92,10 @@ public class YPPPPpiView extends JFrame{
 			System.out.println("Error reading preference.xml");
 			preferenceError = true;
 		}
+		
+		listVoid = 20;
+		listGold = 10;
+		listBlack = -1;
 		
 		// Global box
 		Container content = this.getContentPane();
@@ -154,8 +159,8 @@ public class YPPPPpiView extends JFrame{
 			JPanel buttonBoxXO = new JPanel();
 			buttonBoxXO.setLayout(new BoxLayout(buttonBoxXO, BoxLayout.LINE_AXIS));
 			piCopyBut = new JButton("Job-Copy"); piCopyBut.addActionListener(new CopyHandler()); buttonBoxXO.add(piCopyBut);
-			piBlackBut = new JButton("Blacklist"); piBlackBut.addActionListener(new BlackListHandler()); buttonBoxXO.add(piBlackBut);
-			piGoldBut = new JButton("Goldlist"); piGoldBut.addActionListener(new GoldListHandler()); buttonBoxXO.add(piGoldBut);
+			piBlackBut = new JButton("(Un)Blacklist"); piBlackBut.addActionListener(new BlackListHandler()); buttonBoxXO.add(piBlackBut);
+			piGoldBut = new JButton("(Un)Goldlist"); piGoldBut.addActionListener(new GoldListHandler()); buttonBoxXO.add(piGoldBut);
 			String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBoxXO.add(oceanChoice);
 			buttonBox.add(buttonBoxXO);
 		allBox.add(buttonBox);
@@ -182,7 +187,7 @@ public class YPPPPpiView extends JFrame{
 	private void addPirate(){
 		YPPPPPirate p = new YPPPPPirate();
 		p = getPirateInfo(nameTxt.getText());
-		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), 20};
+		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), listVoid};
 		pirateData.put(nameTxt.getText(), test);
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
@@ -305,17 +310,29 @@ public class YPPPPpiView extends JFrame{
 	private void goldlist(){
 		int index = pirateTable.getSelectedRow();
 		String name = (String) pirateTable.getValueAt(index, 0);
-		goldlist.add(name);
 		Integer[] temp = pirateData.get(name);
-		temp[temp.length-1] = 10;
+		blacklist.remove(name);
+		if (goldlist.contains(name)){
+			goldlist.remove(name);
+			temp[temp.length-1] = listVoid;
+		} else {
+			goldlist.add(name);
+			temp[temp.length-1] = listGold;
+		}
 		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 11);  
 	}
 	private void blacklist(){
 		int index = pirateTable.getSelectedRow();
 		String name = (String) pirateTable.getValueAt(index, 0);
-		blacklist.add(name);
 		Integer[] temp = pirateData.get(name);
-		temp[temp.length-1] = -1;
+		goldlist.remove(name);
+		if (blacklist.contains(name)){
+			blacklist.remove(name);
+			temp[temp.length-1] = listVoid;
+		} else {
+			blacklist.add(name);
+			temp[temp.length-1] = listBlack;
+		}
 		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 11);
 	}
 	/**
@@ -361,14 +378,15 @@ public class YPPPPpiView extends JFrame{
 				case 0: cell.setBackground(Color.WHITE); break; //Able
 				case 1: cell.setBackground(Color.GRAY); break;	//Dis
 				case 2: cell.setBackground(Color.CYAN); break;	//Res
-				case 3:	cell.setBackground(Color.BLUE); break;	//Mas
+				//case 3:	cell.setBackground(Color.BLUE); break;	//Mas
+				case 3: cell.setBackground(new Color(0,0,255));  cell.setForeground(Color.WHITE); break; //Mas
 				case 4:	cell.setBackground(Color.GREEN); break;	//Ren
 				case 5:	cell.setBackground(Color.YELLOW); break;//GM
 				case 6: cell.setBackground(Color.ORANGE); break;//Leg
 				case 7: cell.setBackground(Color.RED); break;	//Ult
 				case -1: cell.setForeground(Color.BLACK); 
 					cell.setBackground(Color.BLACK); break;		//Blacklist
-				case 10: cell.setForeground(Color.ORANGE); 
+				case 10: cell.setForeground(Color.YELLOW); 
 					cell.setBackground(Color.YELLOW); break;	//Goldlist
 				case 20: cell.setForeground(Color.WHITE); 
 					cell.setBackground(Color.WHITE); break;		//no list
