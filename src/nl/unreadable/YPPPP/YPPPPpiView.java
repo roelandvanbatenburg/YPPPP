@@ -11,7 +11,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collections;
@@ -38,7 +40,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -46,6 +50,10 @@ import javax.xml.transform.stream.StreamResult;
 import nl.unreadable.YPPPP.model.YPPPPPirate;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 
 public class YPPPPpiView extends JFrame{
@@ -55,8 +63,8 @@ public class YPPPPpiView extends JFrame{
 	private JLabel nameLab;
 	private JTable pirateTable;
 	private Hashtable<String, Integer[]> pirateData;
-	private String[] columnNames = {"Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Swordfighting", "Rumble", "DNav", "BNav", "TH", "?"};
-	private Vector<String> blacklist,goldlist;
+	private String[] columnNames = {"Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Swordfighting", "Rumble", "DNav", "BNav", "TH", "Forage", "?"};
+	private static Vector<String> blacklist,goldlist;
 	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piQuitBut, piDisableBut, piGoldBut, piBlackBut;
 	private JComboBox oceanChoice;
 	
@@ -66,6 +74,7 @@ public class YPPPPpiView extends JFrame{
 	private Hashtable<Integer,String> intToStat;
 	Pattern statPattern = Pattern.compile("</b>.*/<b>");
 	Pattern oceanStatPattern = Pattern.compile("ocean-wide&nbsp;<b>");
+	Pattern namePattern = Pattern.compile("<td align=\"center\" height=\"32\"><font size=\"[+]1\"><b>");
 	Matcher tempMatch;
 	private BufferedReader in;
 	private String line;
@@ -135,7 +144,8 @@ public class YPPPPpiView extends JFrame{
 			case 8: col.setHeaderValue(getIcon("Dnav", "icons/dnav.png")); break;
 			case 9: col.setHeaderValue(getIcon("Bnav", "icons/bnav.png")); break;
 			case 10: col.setHeaderValue(getIcon("TH", "icons/th.png")); break;
-			case 11: col.setHeaderValue(getIcon("?", "icons/list.png")); break;
+			case 11: col.setHeaderValue(getIcon("For", "icons/forage.png")); break;
+			case 12: col.setHeaderValue(getIcon("?", "icons/list.png")); break;
 			}
 			cnt++;
 		}		
@@ -185,8 +195,9 @@ public class YPPPPpiView extends JFrame{
 	private void addPirate(){
 		YPPPPPirate p = new YPPPPPirate();
 		p = getPirateInfo(nameTxt.getText());
-		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), listVoid};
-		pirateData.put(nameTxt.getText(), test);
+		int list = (goldlist.contains(p.getName()) ? listGold : (blacklist.contains(p.getName()) ? listBlack : listVoid)); 
+		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), p.getForage(), list};
+		pirateData.put(p.getName(), test);
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 	
@@ -196,18 +207,19 @@ public class YPPPPpiView extends JFrame{
 			YPPPPPirate p = new YPPPPPirate(name);
 			URL url = new URL("http://" + ocean + ".puzzlepirates.com/yoweb/pirate.wm?target=" + name);
 			in = new BufferedReader(new InputStreamReader(url.openStream()));
-			//in = new BufferedReader(new FileReader("btza.txt"));
 			line = in.readLine();
-			p.setSF(readStatLine("Swordfighting", "Bilging",p));
-			p.setBilge(readStatLine("Bilging","Sailing",p));
-			p.setSailing(readStatLine("Sailing","Rigging",p));
-			p.setRigging(readStatLine("Rigging","Navigating",p));
-			p.setDNav(readStatLine("Navigating","Battle Navigation",p));
-			p.setBNav(readStatLine("Battle Navigation","Gunning",p));
-			p.setGunning(readStatLine("Gunning","Carpentry",p));
-			p.setCarpentry(readStatLine("Carpentry","Rumble",p));
-			p.setRumble(readStatLine("Rumble","Treasure Haul", p));
-			p.setTH(readStatLine("Treasure Haul","Spades",p));
+			p.setName(readNameLine());
+			p.setSF(readStatLine("Swordfighting", "Bilging"));
+			p.setBilge(readStatLine("Bilging","Sailing"));
+			p.setSailing(readStatLine("Sailing","Rigging"));
+			p.setRigging(readStatLine("Rigging","Navigating"));
+			p.setDNav(readStatLine("Navigating","Battle Navigation"));
+			p.setBNav(readStatLine("Battle Navigation","Gunning"));
+			p.setGunning(readStatLine("Gunning","Carpentry"));
+			p.setCarpentry(readStatLine("Carpentry","Rumble"));
+			p.setRumble(readStatLine("Rumble","Treasure Haul"));
+			p.setTH(readStatLine("Treasure Haul","Spades"));
+			p.setForage(readStatLine("Foraging",""));
 			in.close();
 			return p;
 			
@@ -215,12 +227,19 @@ public class YPPPPpiView extends JFrame{
 			return new YPPPPPirate();
 		}
 	}
-	int readStatLine(String stat, String nextStat, YPPPPPirate p) throws Exception{
+	String readNameLine() throws Exception{
+		while (!line.contains("<td align=\"center\" height=\"32\"><font size=\"+1\"><b>") && (line = in.readLine()) != null){}
+		tempMatch = namePattern.matcher(line);
+		if (!tempMatch.find()) return "";
+		return line.substring(tempMatch.end(), line.length()-16);
+	}
+	int readStatLine(String stat, String nextStat) throws Exception{
 		// read till we are really at stat
 		while (!line.contains("alt=\"" + stat + "\"></a></td>") && (line = in.readLine()) != null && !line.contains("alt=\"" + stat + "\"></a></td>")){}
 		while((line=in.readLine()) != null && !line.contains("/")){}
 		int stand = readStat(line);
 		// read till we get ocean-wide or we are at stat
+		if (nextStat.equals("")) return stand;
 		while ((line = in.readLine()) != null && !line.contains("ocean-wide") && !line.contains("alt=\"" + nextStat + "\"></a></td>")){}
 		if (line.contains("ocean-wide")){
 			stand = readOceanStat(line);
@@ -246,16 +265,60 @@ public class YPPPPpiView extends JFrame{
 		try {
 			goldlist = new Vector<String>();
 			blacklist = new Vector<String>();
+			/*
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
 			ocean = doc.getElementsByTagName("ocean").item(0).getChildNodes().item(0).getNodeValue();
+			*/
+			DOMParser parser = new DOMParser();
+			parser.parse("test.xml");
+			Document doc = parser.getDocument();
+			ocean = doc.getElementsByTagName("Ocean").item(0).getAttributes().item(0).getNodeValue();
+			int listcnt = Integer.parseInt(doc.getElementsByTagName("ListCnt").item(0).getAttributes().item(0).getNodeValue());
+			Node test;
+			for (int i = 0; i < listcnt; i++){
+				test = doc.getElementsByTagName("List").item(0).getAttributes().item(i);
+				if(test.getNodeValue().equals("black"))
+					blacklist.add(test.getNodeName());
+				if(test.getNodeValue().equals("gold"))
+					goldlist.add(test.getNodeName());
+			}
 		} catch(Exception e){preferenceError = true;}
 	}
 	static void savePreferences(){
 		try {
+			/*
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
 			doc.getElementsByTagName("ocean").item(0).getFirstChild().setNodeValue(ocean);
 			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult("preferences.xml"));
-		} catch(Exception e){preferenceError = true;}
+			*/
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder parser = factory.newDocumentBuilder();
+			Document doc = parser.newDocument();
+			Element root = doc.createElement("Preferences");
+			doc.appendChild(root);
+			// ocean
+			Element oceanelm = doc.createElement("Ocean");
+			oceanelm.setAttribute("Ocean", ocean);
+			root.appendChild(oceanelm);
+			// lists
+			Element listcntelm = doc.createElement("ListCnt");
+			listcntelm.setAttribute("Count", "" + (blacklist.size() + goldlist.size()));
+			root.appendChild(listcntelm);
+			Element listelm = doc.createElement("List");
+			// black
+			for (Enumeration<String> e = blacklist.elements(); e.hasMoreElements();){
+				listelm.setAttribute(e.nextElement(), "black");
+			}
+			// gold
+			for (Enumeration<String> e = goldlist.elements(); e.hasMoreElements();){
+				listelm.setAttribute(e.nextElement(), "gold");
+			}
+			root.appendChild(listelm);			
+			
+			// write to file
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.transform(new DOMSource(doc), new StreamResult(new BufferedWriter(new FileWriter(new File("test.xml")))));
+		} catch(Exception e){preferenceError = true; System.out.println(e);}
 	}
 	/*
 	 * Button handlers
@@ -321,7 +384,7 @@ public class YPPPPpiView extends JFrame{
 			goldlist.add(name);
 			temp[temp.length-1] = listGold;
 		}
-		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 11);  
+		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 12);  
 	}
 	private void blacklist(){
 		int index = pirateTable.getSelectedRow();
@@ -335,7 +398,7 @@ public class YPPPPpiView extends JFrame{
 			blacklist.add(name);
 			temp[temp.length-1] = listBlack;
 		}
-		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 11);
+		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 12);
 	}
 	/**
 	 * Hashtable Stuff
