@@ -270,7 +270,7 @@ public class YPPPPpiView extends JFrame{
 			ocean = doc.getElementsByTagName("ocean").item(0).getChildNodes().item(0).getNodeValue();
 			*/
 			DOMParser parser = new DOMParser();
-			parser.parse("test.xml");
+			parser.parse("preferences.xml");
 			Document doc = parser.getDocument();
 			ocean = doc.getElementsByTagName("Ocean").item(0).getAttributes().item(0).getNodeValue();
 			int listcnt = Integer.parseInt(doc.getElementsByTagName("ListCnt").item(0).getAttributes().item(0).getNodeValue());
@@ -317,7 +317,7 @@ public class YPPPPpiView extends JFrame{
 			
 			// write to file
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.transform(new DOMSource(doc), new StreamResult(new BufferedWriter(new FileWriter(new File("test.xml")))));
+			transformer.transform(new DOMSource(doc), new StreamResult(new BufferedWriter(new FileWriter(new File("preferences.xml")))));
 		} catch(Exception e){preferenceError = true; System.out.println(e);}
 	}
 	/*
