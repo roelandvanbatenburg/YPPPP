@@ -195,6 +195,11 @@ public class YPPPPpiView extends JFrame{
 	private void addPirate(){
 		YPPPPPirate p = new YPPPPPirate();
 		p = getPirateInfo(nameTxt.getText());
+		if (p == null){
+			System.out.println("Pirate not found (are you on the right ocean?)");
+			return;
+		}
+			
 		int list = (goldlist.contains(p.getName()) ? listGold : (blacklist.contains(p.getName()) ? listBlack : listVoid)); 
 		Integer[] test = {p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), p.getForage(), list};
 		pirateData.put(p.getName(), test);
@@ -224,7 +229,7 @@ public class YPPPPpiView extends JFrame{
 			return p;
 			
 		}catch(Exception e){
-			return new YPPPPPirate();
+			return null;
 		}
 	}
 	String readNameLine() throws Exception{
