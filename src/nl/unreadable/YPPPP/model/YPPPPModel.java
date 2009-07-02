@@ -124,13 +124,16 @@ public class YPPPPModel {
 	 */
 	public void changeShipType(String type, boolean me){
 		storeState();
+		System.out.println(type);
 		(me ? myShip : oppShip).changeType(shipList.get(type));
+		System.out.println((me ? myShip : oppShip).type);
 		Update();
 	}
 	/**
 	 * function to raise when something changed
 	 */
 	void Update(){
+		System.out.println(history);
 		view.Update();		
 	}
 	/**
@@ -199,8 +202,8 @@ public class YPPPPModel {
 	public void undo(){
 		if (history.size() > 0){   
 			YPPPPShip [] tmp = history.pop();
-			myShip = new YPPPPShip(tmp[0]);
-			oppShip = new YPPPPShip(tmp[1]);
+			myShip = tmp[0];
+			oppShip = tmp[1];
 		}
 		view.Update();
 	}
