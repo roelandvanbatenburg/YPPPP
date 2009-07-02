@@ -1,5 +1,7 @@
 package nl.unreadable.YPPPP.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 
@@ -19,24 +21,17 @@ public class YPPPPPirate{
 	private int SF, Bilge, Sailing, Rigging, DNav, BNav, Gunning, Carpentry, Rumble, TH, Forage, List;
 	public YPPPPPirate(){}
 	public YPPPPPirate(String n){name = n;}
-	public YPPPPPirate(String n, int sw, int bi, int sa, int ri, int dn, int bn, int gu, int ca, int ru, int tr, int fo, int li)
-	{
+	public YPPPPPirate(String n, int sw, int bi, int sa, int ri, int dn, int bn, int gu, int ca, int ru, int tr, int fo, int li){
 		setName(n);	setSF(sw);setBilge(bi);setSailing(sa);setRigging(ri);setDNav(dn);setBNav(bn);setGunning(gu);setCarpentry(ca);setRumble(ru);setTH(tr);setForage(fo);setList(li);
 	}
 	public YPPPPPirate(YPPPPPirate copy){
-		setName(copy.getName());
-		setSF(copy.getSF());
-		setBilge(copy.getBilge());
-		setSailing(copy.getSailing());
-		setRigging(copy.getRigging());
-		setDNav(copy.getDNav());
-		setBNav(copy.getBNav());
-		setGunning(copy.getGunning());
-		setCarpentry(copy.getCarpentry());
-		setRumble(copy.getRumble());
-		setTH(copy.getTH());
-		setForage(copy.getForage());
-		setList(copy.getList());
+		setName(copy.getName());setSF(copy.getSF());setBilge(copy.getBilge());setSailing(copy.getSailing());setRigging(copy.getRigging());setDNav(copy.getDNav());setBNav(copy.getBNav());setGunning(copy.getGunning());setCarpentry(copy.getCarpentry());setRumble(copy.getRumble());setTH(copy.getTH());setForage(copy.getForage());setList(copy.getList());
+	}
+	public ArrayList<Object> getAsData(){
+		ArrayList<Object> tmp = new ArrayList<Object>();
+		tmp.add(name); tmp.add(Gunning); tmp.add(Bilge); tmp.add(Sailing); tmp.add(Rigging); tmp.add(DNav); tmp.add(BNav); tmp.add(Carpentry); tmp.add(SF); tmp.add(Rumble); tmp.add(TH); tmp.add(Forage); tmp.add(List);
+		
+		return tmp;
 	}
 	
 	public void setSF(int v){SF=v;}
@@ -67,16 +62,5 @@ public class YPPPPPirate{
 	public int getTH(){return TH;}
 	public int getForage(){return Forage;}
 	public int getList(){return List;}
-	public class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+		
 }
-class YPPPPPSFComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getSF() - two.getSF();}}
-/*class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
-class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}*/

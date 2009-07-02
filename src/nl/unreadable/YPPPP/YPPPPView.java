@@ -21,6 +21,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Set;
@@ -537,7 +538,8 @@ public class YPPPPView extends JFrame{
 					YPPPPPirate p = new YPPPPPirate(name,el[0],el[1],el[2],el[3],el[4],el[5],el[6],el[7],el[8],el[9],el[10],el[11]);
 					array.add(p);
 				}
-				Collections.sort(array, YPPPPPGunComp);
+				Collections.sort(array, new YPPPPPGunComp());
+				return array.get(row).getAsData().get(column);
 			}
 				
 			return new Object();
@@ -648,5 +650,18 @@ public class YPPPPView extends JFrame{
 	}
 	private class GoldListHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){goldlist();}
-	}	
+	}
 }
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return two.getGunning() - one.getGunning();}}
+class YPPPPPSFComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getSF() - two.getSF();}}
+/*class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}
+class YPPPPPGunComp implements Comparator<YPPPPPirate> {public int compare(YPPPPPirate one, YPPPPPirate two) {return one.getGunning() - two.getGunning();}}*/
+
