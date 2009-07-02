@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -107,6 +108,7 @@ public class YPPPPView extends JFrame{
 	private static String ocean = "midnight";	
 	private final int listVoid = 20, listGold = 10, listBlack = -1;
 	private static boolean preferenceError = false;
+	private int sortcolumn = 1;
 	
 	//PS
 	private JPanel psPanel;
@@ -513,18 +515,31 @@ public class YPPPPView extends JFrame{
 		public int getColumnCount(){return columnNames.length;}
 		public Object getValueAt(int row, int column){
 			int cnt = 0;
-			Vector<String> keys = new Vector<String>(pirateData.keySet());
-			Collections.sort(keys);
-			for (Enumeration<String> e = keys.elements(); e.hasMoreElements();){
-				Object el = e.nextElement();
-				if (cnt == row){
-					if (column == 0) // name
-						return el;
-					Integer [] dat = pirateData.get(el);
-					return dat[column-1];
+			if (sortcolumn == 0){ // easily just sort on name
+				Vector<String> keys = new Vector<String>(pirateData.keySet());
+				Collections.sort(keys);
+				for (Enumeration<String> e = keys.elements(); e.hasMoreElements();){
+					Object el = e.nextElement();
+					if (cnt == row){
+						if (column == 0) // name
+							return el;
+						Integer [] dat = pirateData.get(el);
+						return dat[column-1];
+					}
+					cnt++;
 				}
-				cnt++;
 			}
+			else{ // others are harder, first put it in a array, then sort and then print
+				ArrayList<YPPPPPirate> array = new ArrayList<YPPPPPirate>();
+				for (Enumeration<String> e = pirateData.keys(); e.hasMoreElements();){
+					String name = e.nextElement();
+					Integer[] el = pirateData.get(name);
+					YPPPPPirate p = new YPPPPPirate(name,el[0],el[1],el[2],el[3],el[4],el[5],el[6],el[7],el[8],el[9],el[10],el[11]);
+					array.add(p);
+				}
+				Collections.sort(array, YPPPPPGunComp);
+			}
+				
 			return new Object();
 		}
 	}
