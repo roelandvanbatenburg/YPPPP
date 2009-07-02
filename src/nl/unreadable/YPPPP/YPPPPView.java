@@ -92,7 +92,8 @@ public class YPPPPView extends JFrame{
 	private YPPPPModel model;
 	private JComboBox myShipChoice, oppShipChoice;
 	private JLabel myDamageLab, myMoreInfoLab, oppDamageLab, oppMoreInfoLab;
-	
+	private JButton collideButton, undoButton, redoButton, resetButton, dcCopyButton;
+	 
 	//PI
 	private JPanel piPanel;
 	boolean pi = true;
@@ -209,7 +210,7 @@ public class YPPPPView extends JFrame{
 			case 12: col.setHeaderValue(getIcon("?", "icons/list.png")); break;
 			}
 			cnt++;
-		}		
+		}
 		allBox.add(scrollPane);
 		JPanel buttonBox = new JPanel();
 		buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.PAGE_AXIS));
@@ -255,9 +256,11 @@ public class YPPPPView extends JFrame{
 			buttonBox.setLayout(new GridLayout(7,1));
 			JCheckBox sinkingCheck = new JCheckBox("Sinking"); sinkingCheck.addActionListener(new SinkingHandler()); buttonBox.add(sinkingCheck);
 			JCheckBox linesCheck = new JCheckBox("Lines"); linesCheck.addActionListener(new LinesHandler()); buttonBox.add(linesCheck);
-			JButton collideButton = new JButton("Collide"); collideButton.addActionListener(new CollideHandler());buttonBox.add(collideButton);
-			JButton resetButton = new JButton("Reset");	resetButton.addActionListener(new ResetHandler()); buttonBox.add(resetButton);
-			JButton copyButton = new JButton("Copy"); copyButton.addActionListener(new dcCopyHandler());buttonBox.add(copyButton);
+			collideButton = new JButton("Collide"); collideButton.addActionListener(new CollideHandler());buttonBox.add(collideButton);
+			undoButton = new JButton("Undo"); undoButton.addActionListener(new UndoHandler());buttonBox.add(undoButton);
+			//redoButton = new JButton("Redo"); redoButton.addActionListener(new RedoHandler());buttonBox.add(redoButton);			
+			resetButton = new JButton("Reset");	resetButton.addActionListener(new ResetHandler()); buttonBox.add(resetButton);
+			dcCopyButton = new JButton("Copy"); dcCopyButton.addActionListener(new dcCopyHandler());buttonBox.add(dcCopyButton);
 		
 		allBox.add(myShipBox);
 		allBox.add(buttonBox);
@@ -289,12 +292,15 @@ public class YPPPPView extends JFrame{
 	 */
 	public void Update()
 	{
-		myShipChoice.setSelectedItem(model.getShipType(true));
+		myShipChoice.setSelectedItem((model.getShipType(true)));
+		myShipChoice.repaint();
 		myDamageLab.setText(model.getDamage(true));
 		myMoreInfoLab.setText(model.getMoreInfo(true));
-		oppShipChoice.setSelectedItem(model.getShipType(false));
+		oppShipChoice.setSelectedItem((model.getShipType(false)));
 		oppDamageLab.setText(model.getDamage(false));
 		oppMoreInfoLab.setText(model.getMoreInfo(false));
+		undoButton.setEnabled(model.hasUndo());
+		//redoButton.setEnabled(model.hasRedo());
 	}
 	/*
 	 * XML reading and writing
@@ -587,6 +593,12 @@ public class YPPPPView extends JFrame{
 	private class CollideHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){model.collide();}
 	}
+	private class UndoHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){model.undo();}
+	}
+	/*private class RedoHandler implements ActionListener{
+		public void actionPerformed(ActionEvent e){model.redo();}
+	}*/
 	private class ResetHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){model.reset();}
 	}

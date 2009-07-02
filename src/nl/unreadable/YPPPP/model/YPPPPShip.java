@@ -20,7 +20,7 @@ public class YPPPPShip {
 		sink_hp = prototype.sink_hp;
 		rock_damage = prototype.rock_damage;
 		size = prototype.size;
-		damage = 0;
+		damage = prototype.damage;
 	}
 	public YPPPPShip (String t, double c, double ra, double sf, double si, double ro, YPPPPSize sc)
 	{
