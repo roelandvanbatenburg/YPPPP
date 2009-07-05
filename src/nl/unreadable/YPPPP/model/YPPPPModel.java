@@ -123,11 +123,11 @@ public class YPPPPModel {
 	 * @param me true when player, false when opponent
 	 */
 	public void changeShipType(String type, boolean me){
-		storeState();
-		System.out.println(type);
-		(me ? myShip : oppShip).changeType(shipList.get(type));
-		System.out.println((me ? myShip : oppShip).type);
-		Update();
+		if (!type.equals((me ? myShip :oppShip).type)){
+			storeState();
+			(me ? myShip : oppShip).changeType(shipList.get(type));
+			Update();
+		}
 	}
 	/**
 	 * function to raise when something changed
@@ -197,6 +197,7 @@ public class YPPPPModel {
 	private void storeState()
 	{
 		YPPPPShip [] tmp = {new YPPPPShip(myShip), new YPPPPShip(oppShip)};
+		System.out.println("State stored: " + tmp);
 		history.push(tmp);
 	}
 	public void undo(){

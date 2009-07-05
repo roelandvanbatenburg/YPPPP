@@ -291,8 +291,7 @@ public class YPPPPView extends JFrame{
 	 */
 	public void Update()
 	{
-		myShipChoice.setSelectedItem((model.getShipType(true)));
-		myShipChoice.repaint();
+		myShipChoice.setSelectedItem((model.getShipType(true).substring(2)));
 		myDamageLab.setText(model.getDamage(true));
 		myMoreInfoLab.setText(model.getMoreInfo(true));
 		oppShipChoice.setSelectedItem((model.getShipType(false)));
