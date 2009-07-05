@@ -6,7 +6,7 @@ import java.util.Hashtable;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import nl.unreadable.YPPPP.YPPPPdcView;
+import nl.unreadable.YPPPP.YPPPPView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,13 +21,13 @@ public class YPPPPModel {
 	
 	private Hashtable<String, YPPPPShip> shipList;
 	private boolean shipDataError;
-	private YPPPPdcView view;
+	private YPPPPView view;
 	
 	private DecimalFormat twoDigit = new DecimalFormat("#,##0.00");
 	private DecimalFormat oneDigit = new DecimalFormat("#,##0.0");
 	private DecimalFormat shipName = new DecimalFormat("##00");
 	
-	public YPPPPModel(YPPPPdcView v)
+	public YPPPPModel(YPPPPView v)
 	{
 		view = v;
 		sinking = false;

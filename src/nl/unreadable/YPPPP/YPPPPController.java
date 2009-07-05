@@ -2,9 +2,9 @@ package nl.unreadable.YPPPP;
 
 import nl.unreadable.YPPPP.model.YPPPPModel;
 
-public class YPPPPdcController {
+public class YPPPPController {
 	
-	public YPPPPdcController(YPPPPdcView view)
+	public YPPPPController(YPPPPView view)
 	{
 		YPPPPModel model = new YPPPPModel(view);
 		view.setModel(model);
