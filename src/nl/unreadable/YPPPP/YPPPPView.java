@@ -92,7 +92,7 @@ public class YPPPPView extends JFrame{
 	private YPPPPModel model;
 	private JComboBox myShipChoice, oppShipChoice;
 	private JLabel myDamageLab, myMoreInfoLab, oppDamageLab, oppMoreInfoLab;
-	private JButton collideButton, undoButton, redoButton, resetButton, dcCopyButton;
+	private JButton collideButton, undoButton, resetButton, dcCopyButton; //redoButton;
 	 
 	//PI
 	private JPanel piPanel;
