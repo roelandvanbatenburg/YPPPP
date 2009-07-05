@@ -4,3 +4,4 @@ bin
 *.jar
 *.manifest
 *.jardesc
+*.zip
