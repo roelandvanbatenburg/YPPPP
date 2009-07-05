@@ -148,7 +148,7 @@ public class YPPPPView extends JFrame{
 		content.remove(allBox);
 		allBox = new JPanel();
 		allBox.setLayout(new BoxLayout(allBox, BoxLayout.PAGE_AXIS));		
-		view.setSize(365,50 + (dc ? 177 : 0) + (pi ? 510 : 0));
+		view.setSize(365,40 + (dc ? 200 : 0) + (pi ? 510 : 0));
 		allBox.add(YPPPPPanel()); 
 		if (dc) {allBox.add(new JSeparator(SwingConstants.HORIZONTAL));allBox.add(dcPanel); }
 		if (pi) {allBox.add(new JSeparator(SwingConstants.HORIZONTAL));allBox.add(piPanel);}
@@ -252,7 +252,7 @@ public class YPPPPView extends JFrame{
 			JButton oppHitRocks = new JButton("Hits Rocks/Edge");oppHitRocks.addActionListener(new RockHandler(false));oppShipBox.add(oppHitRocks);
 		
 		JPanel buttonBox = new JPanel();
-			buttonBox.setLayout(new GridLayout(7,1));
+			buttonBox.setLayout(new GridLayout(6,1));
 			JCheckBox sinkingCheck = new JCheckBox("Sinking"); sinkingCheck.addActionListener(new SinkingHandler()); buttonBox.add(sinkingCheck);
 			JCheckBox linesCheck = new JCheckBox("Lines"); linesCheck.addActionListener(new LinesHandler()); buttonBox.add(linesCheck);
 			collideButton = new JButton("Collide"); collideButton.addActionListener(new CollideHandler());buttonBox.add(collideButton);
@@ -294,7 +294,7 @@ public class YPPPPView extends JFrame{
 		myShipChoice.setSelectedItem((model.getShipType(true).substring(2)));
 		myDamageLab.setText(model.getDamage(true));
 		myMoreInfoLab.setText(model.getMoreInfo(true));
-		oppShipChoice.setSelectedItem((model.getShipType(false)));
+		oppShipChoice.setSelectedItem((model.getShipType(false).substring(2)));
 		oppDamageLab.setText(model.getDamage(false));
 		oppMoreInfoLab.setText(model.getMoreInfo(false));
 		undoButton.setEnabled(model.hasUndo());
