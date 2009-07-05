@@ -161,7 +161,6 @@ public class YPPPPView extends JFrame{
 	private JPanel YPPPPPanel(){
 		JPanel allBox = new JPanel();
 		allBox.setLayout(new GridLayout(1,3));
-		//allBox.setLayout(new BoxLayout(allBox, BoxLayout.LINE_AXIS));
 		dcCheck = new JCheckBox("DC",dc); dcCheck.addActionListener(new panelHandler(dcPanel)); allBox.add(dcCheck);
 		piCheck = new JCheckBox("PI",pi); piCheck.addActionListener(new panelHandler(piPanel)); allBox.add(piCheck);
 		exitButton = new JButton("Exit"); exitButton.addActionListener(new ExitHandler()); allBox.add(exitButton);
@@ -225,7 +224,7 @@ public class YPPPPView extends JFrame{
 			piCopyBut = new JButton("Job-Copy"); piCopyBut.addActionListener(new piCopyHandler()); buttonBoxXO.add(piCopyBut);
 			piBlackBut = new JButton("(Un)Blacklist"); piBlackBut.addActionListener(new BlackListHandler()); buttonBoxXO.add(piBlackBut);
 			piGoldBut = new JButton("(Un)Goldlist"); piGoldBut.addActionListener(new GoldListHandler()); buttonBoxXO.add(piGoldBut);
-			String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBoxXO.add(oceanChoice);
+			String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","jade","crimson","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBoxXO.add(oceanChoice);
 			buttonBox.add(buttonBoxXO);
 		allBox.add(buttonBox);
 		return allBox;
