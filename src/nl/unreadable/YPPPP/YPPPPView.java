@@ -83,8 +83,8 @@ public class YPPPPView extends JFrame{
 	
 	// YPPPPPanel
 
-	private JPanel yPanel;
-	private JCheckBox dcCheck, piCheck, psCheck;
+	//private JPanel yPanel;
+	private JCheckBox dcCheck, piCheck;// psCheck;
 	private JButton exitButton;		
 	// DC
 	private JPanel dcPanel;
@@ -110,7 +110,7 @@ public class YPPPPView extends JFrame{
 	private static boolean preferenceError = false;
 	
 	//PS
-	private JPanel psPanel;
+	//private JPanel psPanel;
 	
 	public YPPPPView()
 	{
@@ -182,6 +182,7 @@ public class YPPPPView extends JFrame{
 		// Table to show all the data
 		pirateData = new Hashtable<String,Integer[]>();
 		pirateTable = new JTable(new HashTableModel());
+		pirateTable.setAutoCreateRowSorter(true);
 		JScrollPane scrollPane = new JScrollPane(pirateTable);
 		pirateTable.setFillsViewportHeight(true);
 		TableCellRenderer head = new iconHeaderRenderer();
@@ -517,18 +518,18 @@ public class YPPPPView extends JFrame{
 		public int getColumnCount(){return columnNames.length;}
 		public Object getValueAt(int row, int column){
 			int cnt = 0;
-			Vector<String> keys = new Vector<String>(pirateData.keySet());
-			Collections.sort(keys);
-			for (Enumeration<String> e = keys.elements(); e.hasMoreElements();){
-				Object el = e.nextElement();
-				if (cnt == row){
-					if (column == 0) // name
-						return el;
-					Integer [] dat = pirateData.get(el);
-					return dat[column-1];
+				Vector<String> keys = new Vector<String>(pirateData.keySet());
+				Collections.sort(keys);
+				for (Enumeration<String> e = keys.elements(); e.hasMoreElements();){
+					Object el = e.nextElement();
+					if (cnt == row){
+						if (column == 0) // name
+							return el;
+						Integer [] dat = pirateData.get(el);
+						return dat[column-1];
+					}
+					cnt++;
 				}
-				cnt++;
-			}
 			return new Object();
 		}
 	}
@@ -643,5 +644,5 @@ public class YPPPPView extends JFrame{
 	}
 	private class GoldListHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){goldlist();}
-	}	
+	}
 }
