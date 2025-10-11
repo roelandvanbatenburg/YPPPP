@@ -562,6 +562,12 @@ public class YPPPPView extends JFrame {
 	 * Display of text and icons in table cells
 	 */
 	private TextOrIcon getIcon(String text, String icon) {
+		// Try to load from JAR resources first
+		URL iconURL = getClass().getResource("/" + icon);
+		if (iconURL != null) {
+			return new TextOrIcon(text, new ImageIcon(iconURL));
+		}
+		// Fallback to file system (for development)
 		File f = new File(icon);
 		TextOrIcon toi = new TextOrIcon(text, f.exists() ? new ImageIcon(icon) : null);
 		return toi;

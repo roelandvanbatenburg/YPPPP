@@ -31,6 +31,23 @@
     <build>
         <sourceDirectory>src</sourceDirectory>
         <testSourceDirectory>test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <targetPath>templates</targetPath>
+                <includes>
+                    <include>preferences.xml</include>
+                    <include>ships.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/icons</directory>
+                <targetPath>icons</targetPath>
+                <includes>
+                    <include>**/*.png</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -48,6 +65,27 @@
                 <configuration>
                     <mainClass>nl.unreadable.YPPPP.YPPPP</mainClass>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>nl.unreadable.YPPPP.YPPPP</mainClass>
+                                </transformer>
+                            </transformers>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

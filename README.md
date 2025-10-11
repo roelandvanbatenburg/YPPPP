@@ -15,9 +15,17 @@ To compile the project:
 mvn clean compile
 ```
 
+To build a distributable JAR file:
+
+```bash
+mvn clean package
+```
+
+This creates an executable JAR file at `target/YPPPP-1.0.0.jar` that includes all dependencies.
+
 ## Running the Application
 
-To run the application:
+To run the application during development:
 
 ```bash
 mvn exec:java
@@ -27,6 +35,12 @@ Alternatively, you can build and run in one command:
 
 ```bash
 mvn clean compile exec:java
+```
+
+To run the distributable JAR:
+
+```bash
+java -jar target/YPPPP-1.0.0.jar
 ```
 
 ## Project Structure
