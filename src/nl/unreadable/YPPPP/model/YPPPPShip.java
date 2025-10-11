@@ -8,11 +8,10 @@ public class YPPPPShip {
 	double sink_hp; // damage to sink
 	double rock_damage; // damage that the ship receives when it hits rocks
 	YPPPPSize size; // ship class
-	
+
 	double damage; // current damage
-	
-	public YPPPPShip(YPPPPShip prototype)
-	{
+
+	public YPPPPShip(YPPPPShip prototype) {
 		type = prototype.type;
 		cb_damage = prototype.cb_damage;
 		ram_damage = prototype.ram_damage;
@@ -22,8 +21,8 @@ public class YPPPPShip {
 		size = prototype.size;
 		damage = prototype.damage;
 	}
-	public YPPPPShip (String t, double c, double ra, double sf, double si, double ro, YPPPPSize sc)
-	{
+
+	public YPPPPShip(String t, double c, double ra, double sf, double si, double ro, YPPPPSize sc) {
 		type = t;
 		cb_damage = c;
 		ram_damage = ra;
@@ -33,9 +32,8 @@ public class YPPPPShip {
 		size = sc;
 		damage = 0;
 	}
-	
-	public void changeType(YPPPPShip prototype)
-	{
+
+	public void changeType(YPPPPShip prototype) {
 		type = prototype.type;
 		cb_damage = prototype.cb_damage;
 		ram_damage = prototype.ram_damage;
@@ -44,9 +42,20 @@ public class YPPPPShip {
 		rock_damage = prototype.rock_damage;
 		size = prototype.size;
 	}
-	
-	public void getShot(double d){damage += d;}
-	public void hitRocks(){damage += rock_damage;}
-	public void ram(YPPPPShip s){damage += s.ram_damage;}
-	public void reset(){damage = 0;}
+
+	public void getShot(double d) {
+		damage += d;
+	}
+
+	public void hitRocks() {
+		damage += rock_damage;
+	}
+
+	public void ram(YPPPPShip s) {
+		damage += s.ram_damage;
+	}
+
+	public void reset() {
+		damage = 0;
+	}
 }
