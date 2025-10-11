@@ -104,7 +104,7 @@ public class YPPPPView extends JFrame{
 	private static Vector<String> blacklist,goldlist;
 	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piGoldBut, piBlackBut;
 	private JComboBox oceanChoice;
-	private static String ocean = "midnight";	
+	private static String ocean = "emerald";	
 	private final int listVoid = 20, listGold = 10, listBlack = -1;
 	private static boolean preferenceError = false;
 	
@@ -224,7 +224,7 @@ public class YPPPPView extends JFrame{
 			piCopyBut = new JButton("Job-Copy"); piCopyBut.addActionListener(new piCopyHandler()); buttonBoxXO.add(piCopyBut);
 			piBlackBut = new JButton("(Un)Blacklist"); piBlackBut.addActionListener(new BlackListHandler()); buttonBoxXO.add(piBlackBut);
 			piGoldBut = new JButton("(Un)Goldlist"); piGoldBut.addActionListener(new GoldListHandler()); buttonBoxXO.add(piGoldBut);
-			String[] oceans = {"midnight","cobalt","viridian","sage","hunter","opal","malachite","jade","crimson","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBoxXO.add(oceanChoice);
+			String[] oceans = {"cerulean","emerald","merideia","opal","jade","crimson","ice"}; oceanChoice = new JComboBox(oceans); oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice)); oceanChoice.setSelectedItem(ocean); buttonBoxXO.add(oceanChoice);
 			buttonBox.add(buttonBoxXO);
 		allBox.add(buttonBox);
 		return allBox;
@@ -370,24 +370,19 @@ public class YPPPPView extends JFrame{
 	private YPPPPPirate getPirateInfo(String name)
 	{
 		try{
-			YPPPPPirate p = new YPPPPPirate(name);
 			URL url = new URL("http://" + ocean + ".puzzlepirates.com/yoweb/pirate.wm?target=" + name);
 			in = new BufferedReader(new InputStreamReader(url.openStream()));
-			line = in.readLine();
-			p.setName(readNameLine());
-			p.setSF(readStatLine("Swordfighting", "Bilging"));
-			p.setBilge(readStatLine("Bilging","Sailing"));
-			p.setSailing(readStatLine("Sailing","Rigging"));
-			p.setRigging(readStatLine("Rigging","Navigating"));
-			p.setDNav(readStatLine("Navigating","Battle Navigation"));
-			p.setBNav(readStatLine("Battle Navigation","Gunning"));
-			p.setGunning(readStatLine("Gunning","Carpentry"));
-			p.setCarpentry(readStatLine("Carpentry","Rumble"));
-			p.setRumble(readStatLine("Rumble","Treasure Haul"));
-			p.setTH(readStatLine("Treasure Haul","Spades"));
-			p.setForage(readStatLine("Foraging",""));
+			
+			// Read the entire HTML content
+			StringBuilder htmlContent = new StringBuilder();
+			String line;
+			while ((line = in.readLine()) != null) {
+				htmlContent.append(line).append("\n");
+			}
 			in.close();
-			return p;
+			
+			// Use the new parser to extract pirate information
+			return nl.unreadable.YPPPP.parser.PiratePageParser.parseFromHtml(htmlContent.toString());
 		}catch(Exception e){return null;}
 	}
 	private String readNameLine() throws Exception{
