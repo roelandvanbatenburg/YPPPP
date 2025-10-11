@@ -61,7 +61,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.sun.org.apache.xerces.internal.parsers.DOMParser;
 
 public class YPPPPView extends JFrame{
 	public static final long serialVersionUID = 9L;
@@ -308,13 +307,7 @@ public class YPPPPView extends JFrame{
 		try {
 			goldlist = new Vector<String>();
 			blacklist = new Vector<String>();
-			/*
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
-			ocean = doc.getElementsByTagName("ocean").item(0).getChildNodes().item(0).getNodeValue();
-			*/
-			DOMParser parser = new DOMParser();
-			parser.parse("preferences.xml");
-			Document doc = parser.getDocument();
 			ocean = doc.getElementsByTagName("Ocean").item(0).getAttributes().item(0).getNodeValue();
 			int listcnt = Integer.parseInt(doc.getElementsByTagName("ListCnt").item(0).getAttributes().item(0).getNodeValue());
 			Node test;
