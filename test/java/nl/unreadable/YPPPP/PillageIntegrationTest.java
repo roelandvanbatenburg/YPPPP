@@ -53,7 +53,7 @@ public class PillageIntegrationTest {
 		assertTrue(roster.isBlack("Jack"));
 		assertEquals(PirateRoster.LIST_BLACK, (int) roster.getStats("Jack")[12]);
 
-		// 4. Black-listing overrides an earlier gold-listing for the same jobber.
+		// 4. Gold-listing overrides an earlier black-listing for the same jobber.
 		roster.toggleGold("Jack");
 		assertFalse(roster.isBlack("Jack"));
 		assertTrue(roster.isGold("Jack"));

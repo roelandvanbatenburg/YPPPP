@@ -467,7 +467,6 @@ public class YPPPPView extends JFrame implements ShipListView {
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 
-
 	/*
 	 * Managing Lists
 	 */

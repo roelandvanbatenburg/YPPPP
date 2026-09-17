@@ -2,11 +2,28 @@ package nl.unreadable.YPPPP;
 
 import static org.junit.Assert.*;
 
+import java.util.Locale;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import nl.unreadable.YPPPP.model.YPPPPModel;
 
 public class BattleIntegrationTest {
+
+	private static Locale previousLocale;
+
+	@BeforeClass
+	public static void setLocale() {
+		previousLocale = Locale.getDefault();
+		Locale.setDefault(Locale.UK);
+	}
+
+	@AfterClass
+	public static void restoreLocale() {
+		Locale.setDefault(previousLocale);
+	}
 
 	@Test
 	public void changeEnemyShipThenFightAFullBattle() {

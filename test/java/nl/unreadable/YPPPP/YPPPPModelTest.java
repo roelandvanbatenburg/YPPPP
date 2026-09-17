@@ -2,15 +2,32 @@ package nl.unreadable.YPPPP;
 
 import static org.junit.Assert.*;
 
+import java.util.Locale;
+
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import nl.unreadable.YPPPP.model.YPPPPModel;
 
 public class YPPPPModelTest {
 
+	private static Locale previousLocale;
+
 	private FakeShipListView view;
 	private YPPPPModel model;
+
+	@BeforeClass
+	public static void setLocale() {
+		previousLocale = Locale.getDefault();
+		Locale.setDefault(Locale.UK);
+	}
+
+	@AfterClass
+	public static void restoreLocale() {
+		Locale.setDefault(previousLocale);
+	}
 
 	@Before
 	public void setUp() {
@@ -31,6 +48,7 @@ public class YPPPPModelTest {
 		model.shoot(true);
 		assertEquals("2.0 / 12.0", model.getDamage(true));
 		assertTrue(model.hasUndo());
+		assertEquals(1, view.updateCount);
 	}
 
 	@Test
