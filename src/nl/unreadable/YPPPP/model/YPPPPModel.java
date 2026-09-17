@@ -31,6 +31,11 @@ public class YPPPPModel {
 	private DecimalFormat oneDigit = new DecimalFormat("#,##0.0");
 	private DecimalFormat shipName = new DecimalFormat("##00");
 
+	// "Lines" mode divides a ship's health into sixths (Puzzle Pirates' own
+	// health-bar convention); the alternative is a plain percentage.
+	private static final int SIXTHS = 6;
+	private static final int PERCENT_SCALE = 100;
+
 	public YPPPPModel(ShipListView v) {
 		view = v;
 		sinking = false;
@@ -89,8 +94,9 @@ public class YPPPPModel {
 
 	private String getMoreInfo(YPPPPShip ship) {
 		return ((ship.getDamage() >= (sinking ? ship.getSink_hp() : ship.getSf_hp())) ? "Max"
-				: (lines ? oneDigit : twoDigit).format((lines ? 6 : 100) * ship.getDamage() / (sinking ? ship.getSink_hp() : ship.getSf_hp()))
-						+ (lines ? "/6.0" : "%"));
+				: (lines ? oneDigit : twoDigit).format((lines ? SIXTHS : PERCENT_SCALE) * ship.getDamage()
+						/ (sinking ? ship.getSink_hp() : ship.getSf_hp()))
+						+ (lines ? "/" + oneDigit.format(SIXTHS) : "%"));
 	}
 
 	/**

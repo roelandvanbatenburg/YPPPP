@@ -39,6 +39,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import nl.unreadable.YPPPP.model.PirateRank;
 import nl.unreadable.YPPPP.model.PirateRoster;
 
 /**
@@ -72,8 +73,37 @@ public class YPPPPView extends JFrame {
 	private JLabel nameLab;
 	private JTable pirateTable;
 	private List<PirateRow> pirateRows = new ArrayList<PirateRow>();
-	private String[] columnNames = { "Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Patching",
-			"Swordfighting", "Rumble", "DNav", "BNav", "TH", "Forage", "?" };
+
+	// Single source of truth for the pirate table's columns: their order,
+	// header icon, and icon label. A column's position here is its position
+	// in both the table and PirateRow.getStats() (offset by 1 for "Name").
+	private static final Column[] COLUMNS = {
+			new Column("Name", "icons/name.png"),
+			new Column("Gun", "icons/gun.png"),
+			new Column("Bilge", "icons/bilge.png"),
+			new Column("Sail", "icons/sail.png"),
+			new Column("Rig", "icons/rig.png"),
+			new Column("Carp", "icons/carp.png"),
+			new Column("Patch", "icons/patch.png"),
+			new Column("SF", "icons/sf.png"),
+			new Column("Rumble", "icons/rumble.png"),
+			new Column("Dnav", "icons/dnav.png"),
+			new Column("Bnav", "icons/bnav.png"),
+			new Column("TH", "icons/th.png"),
+			new Column("For", "icons/forage.png"),
+			new Column("?", "icons/list.png"),
+	};
+
+	private static final class Column {
+		final String iconLabel;
+		final String iconPath;
+
+		Column(String iconLabel, String iconPath) {
+			this.iconLabel = iconLabel;
+			this.iconPath = iconPath;
+		}
+	}
+
 	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piGoldBut, piBlackBut;
 	private JComboBox<String> oceanChoice;
 
@@ -176,52 +206,8 @@ public class YPPPPView extends JFrame {
 			TableColumn col = e.nextElement();
 			col.setHeaderRenderer(head);
 			col.setCellRenderer(cell);
-			col.setPreferredWidth(10);
-			switch (cnt) {
-				case 0:
-					col.setHeaderValue(getIcon("Name", "icons/name.png"));
-					col.setPreferredWidth(100);
-					break;
-				case 1:
-					col.setHeaderValue(getIcon("Gun", "icons/gun.png"));
-					break;
-				case 2:
-					col.setHeaderValue(getIcon("Bilge", "icons/bilge.png"));
-					break;
-				case 3:
-					col.setHeaderValue(getIcon("Sail", "icons/sail.png"));
-					break;
-				case 4:
-					col.setHeaderValue(getIcon("Rig", "icons/rig.png"));
-					break;
-				case 5:
-					col.setHeaderValue(getIcon("Carp", "icons/carp.png"));
-					break;
-				case 6:
-					col.setHeaderValue(getIcon("Patch", "icons/patch.png"));
-					break;
-				case 7:
-					col.setHeaderValue(getIcon("SF", "icons/sf.png"));
-					break;
-				case 8:
-					col.setHeaderValue(getIcon("Rumble", "icons/rumble.png"));
-					break;
-				case 9:
-					col.setHeaderValue(getIcon("Dnav", "icons/dnav.png"));
-					break;
-				case 10:
-					col.setHeaderValue(getIcon("Bnav", "icons/bnav.png"));
-					break;
-				case 11:
-					col.setHeaderValue(getIcon("TH", "icons/th.png"));
-					break;
-				case 12:
-					col.setHeaderValue(getIcon("For", "icons/forage.png"));
-					break;
-				case 13:
-					col.setHeaderValue(getIcon("?", "icons/list.png"));
-					break;
-			}
+			col.setPreferredWidth(cnt == 0 ? 100 : 10);
+			col.setHeaderValue(getIcon(COLUMNS[cnt].iconLabel, COLUMNS[cnt].iconPath));
 			cnt++;
 		}
 		allBox.add(scrollPane);
@@ -450,7 +436,7 @@ public class YPPPPView extends JFrame {
 		}
 
 		public int getColumnCount() {
-			return columnNames.length;
+			return COLUMNS.length;
 		}
 
 		public Object getValueAt(int row, int column) {
@@ -472,47 +458,49 @@ public class YPPPPView extends JFrame {
 			if (value instanceof Integer) {
 				Integer val = (Integer) value;
 				setForeground(Color.BLACK);
-				switch (val) {
-					case 0:
-						cell.setBackground(Color.WHITE);
-						break; // Able
-					case 1:
-						cell.setBackground(Color.LIGHT_GRAY);
-						break; // Proficient
-					case 2:
-						cell.setBackground(Color.GRAY);
-						break; // Dis
-					case 3:
-						cell.setBackground(Color.CYAN);
-						break; // Res
-					case 4:
-						cell.setBackground(new Color(0, 0, 255));
-						cell.setForeground(Color.WHITE);
-						break; // Mas
-					case 5:
-						cell.setBackground(Color.GREEN);
-						break; // Ren
-					case 6:
-						cell.setBackground(Color.YELLOW);
-						break;// GM
-					case 7:
-						cell.setBackground(Color.ORANGE);
-						break;// Leg
-					case 8:
-						cell.setBackground(Color.RED);
-						break; // Ult
-					case PirateRoster.LIST_BLACK:
-						cell.setForeground(Color.BLACK);
-						cell.setBackground(Color.BLACK);
-						break; // Blacklist
-					case PirateRoster.LIST_GOLD:
-						cell.setForeground(Color.YELLOW);
-						cell.setBackground(Color.YELLOW);
-						break; // Goldlist
-					case PirateRoster.LIST_VOID:
-						cell.setForeground(Color.WHITE);
-						cell.setBackground(Color.WHITE);
-						break; // no list
+				if (val == PirateRoster.LIST_BLACK) {
+					cell.setForeground(Color.BLACK);
+					cell.setBackground(Color.BLACK);
+				} else if (val == PirateRoster.LIST_GOLD) {
+					cell.setForeground(Color.YELLOW);
+					cell.setBackground(Color.YELLOW);
+				} else if (val == PirateRoster.LIST_VOID) {
+					cell.setForeground(Color.WHITE);
+					cell.setBackground(Color.WHITE);
+				} else {
+					// val is a PirateRank ordinal, not a raw magic number, so a
+					// newly inserted rank can't silently desync this switch the
+					// way it did before PirateRank existed.
+					switch (PirateRank.values()[val]) {
+						case ABLE:
+							cell.setBackground(Color.WHITE);
+							break;
+						case PROFICIENT:
+							cell.setBackground(Color.LIGHT_GRAY);
+							break;
+						case DISTINGUISHED:
+							cell.setBackground(Color.GRAY);
+							break;
+						case RESPECTED:
+							cell.setBackground(Color.CYAN);
+							break;
+						case MASTER:
+							cell.setBackground(new Color(0, 0, 255));
+							cell.setForeground(Color.WHITE);
+							break;
+						case RENOWNED:
+							cell.setBackground(Color.GREEN);
+							break;
+						case GRAND_MASTER:
+							cell.setBackground(Color.YELLOW);
+							break;
+						case LEGENDARY:
+							cell.setBackground(Color.ORANGE);
+							break;
+						case ULTIMATE:
+							cell.setBackground(Color.RED);
+							break;
+					}
 				}
 			} else {
 				cell.setForeground(Color.BLACK);
