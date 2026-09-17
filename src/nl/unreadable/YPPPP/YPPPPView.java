@@ -12,11 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Collections;
@@ -56,6 +54,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import nl.unreadable.YPPPP.model.YPPPPModel;
 import nl.unreadable.YPPPP.model.YPPPPPirate;
+import nl.unreadable.YPPPP.parser.HttpPirateFetcher;
+import nl.unreadable.YPPPP.parser.PirateFetcher;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -74,7 +74,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 	Pattern oceanStatPattern = Pattern.compile("ocean-wide&nbsp;<b>");
 	Pattern namePattern = Pattern.compile("<td align=\"center\" height=\"32\"><font size=\"[+]1\"><b>");
 	Matcher tempMatch;
-	private BufferedReader in;
+	private PirateFetcher pirateFetcher = new HttpPirateFetcher();
 
 	// YPPPPPanel
 
@@ -462,8 +462,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 	 * Adding pirates to table
 	 */
 	private void addPirate() {
-		YPPPPPirate p = new YPPPPPirate();
-		p = getPirateInfo(nameTxt.getText());
+		YPPPPPirate p = pirateFetcher.fetch(ocean, nameTxt.getText());
 		if (p == null) {
 			System.out.println("Pirate not found (are you on the right ocean?)");
 			return;
@@ -476,25 +475,6 @@ public class YPPPPView extends JFrame implements ShipListView {
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 
-	private YPPPPPirate getPirateInfo(String name) {
-		try {
-			URL url = new URL("http://" + ocean + ".puzzlepirates.com/yoweb/pirate.wm?target=" + name);
-			in = new BufferedReader(new InputStreamReader(url.openStream()));
-
-			// Read the entire HTML content
-			StringBuilder htmlContent = new StringBuilder();
-			String line;
-			while ((line = in.readLine()) != null) {
-				htmlContent.append(line).append("\n");
-			}
-			in.close();
-
-			// Use the new parser to extract pirate information
-			return nl.unreadable.YPPPP.parser.PiratePageParser.parseFromHtml(htmlContent.toString());
-		} catch (Exception e) {
-			return null;
-		}
-	}
 
 	/*
 	 * Managing Lists
