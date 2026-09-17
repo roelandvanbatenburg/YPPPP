@@ -96,8 +96,8 @@ public class YPPPPView extends JFrame {
 	private JLabel nameLab;
 	private JTable pirateTable;
 	private Hashtable<String, Integer[]> pirateData;
-	private String[] columnNames = { "Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Swordfighting",
-			"Rumble", "DNav", "BNav", "TH", "Forage", "?" };
+	private String[] columnNames = { "Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Patching",
+			"Swordfighting", "Rumble", "DNav", "BNav", "TH", "Forage", "?" };
 	private static Vector<String> blacklist, goldlist;
 	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piGoldBut, piBlackBut;
 	private JComboBox<String> oceanChoice;
@@ -232,24 +232,27 @@ public class YPPPPView extends JFrame {
 					col.setHeaderValue(getIcon("Carp", "icons/carp.png"));
 					break;
 				case 6:
-					col.setHeaderValue(getIcon("SF", "icons/sf.png"));
+					col.setHeaderValue(getIcon("Patch", "icons/patch.png"));
 					break;
 				case 7:
-					col.setHeaderValue(getIcon("Rumble", "icons/rumble.png"));
+					col.setHeaderValue(getIcon("SF", "icons/sf.png"));
 					break;
 				case 8:
-					col.setHeaderValue(getIcon("Dnav", "icons/dnav.png"));
+					col.setHeaderValue(getIcon("Rumble", "icons/rumble.png"));
 					break;
 				case 9:
-					col.setHeaderValue(getIcon("Bnav", "icons/bnav.png"));
+					col.setHeaderValue(getIcon("Dnav", "icons/dnav.png"));
 					break;
 				case 10:
-					col.setHeaderValue(getIcon("TH", "icons/th.png"));
+					col.setHeaderValue(getIcon("Bnav", "icons/bnav.png"));
 					break;
 				case 11:
-					col.setHeaderValue(getIcon("For", "icons/forage.png"));
+					col.setHeaderValue(getIcon("TH", "icons/th.png"));
 					break;
 				case 12:
+					col.setHeaderValue(getIcon("For", "icons/forage.png"));
+					break;
+				case 13:
 					col.setHeaderValue(getIcon("?", "icons/list.png"));
 					break;
 			}
@@ -467,8 +470,8 @@ public class YPPPPView extends JFrame {
 		}
 
 		int list = (goldlist.contains(p.getName()) ? listGold : (blacklist.contains(p.getName()) ? listBlack : listVoid));
-		Integer[] test = { p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(), p.getSF(),
-				p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), p.getForage(), list };
+		Integer[] test = { p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(),
+				p.getPatching(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), p.getForage(), list };
 		pirateData.put(p.getName(), test);
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
@@ -520,7 +523,7 @@ public class YPPPPView extends JFrame {
 			goldlist.add(name);
 			temp[temp.length - 1] = listGold;
 		}
-		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 12);
+		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, columnNames.length - 1);
 	}
 
 	private void blacklist() {
@@ -535,7 +538,7 @@ public class YPPPPView extends JFrame {
 			blacklist.add(name);
 			temp[temp.length - 1] = listBlack;
 		}
-		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, 12);
+		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, columnNames.length - 1);
 	}
 
 	/*
@@ -637,25 +640,28 @@ public class YPPPPView extends JFrame {
 						cell.setBackground(Color.WHITE);
 						break; // Able
 					case 1:
+						cell.setBackground(Color.LIGHT_GRAY);
+						break; // Proficient
+					case 2:
 						cell.setBackground(Color.GRAY);
 						break; // Dis
-					case 2:
+					case 3:
 						cell.setBackground(Color.CYAN);
 						break; // Res
-					case 3:
+					case 4:
 						cell.setBackground(new Color(0, 0, 255));
 						cell.setForeground(Color.WHITE);
 						break; // Mas
-					case 4:
+					case 5:
 						cell.setBackground(Color.GREEN);
 						break; // Ren
-					case 5:
+					case 6:
 						cell.setBackground(Color.YELLOW);
 						break;// GM
-					case 6:
+					case 7:
 						cell.setBackground(Color.ORANGE);
 						break;// Leg
-					case 7:
+					case 8:
 						cell.setBackground(Color.RED);
 						break; // Ult
 					case listBlack:

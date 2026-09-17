@@ -6,7 +6,7 @@ public class YPPPPPirate {
 
 	private String name;
 	// Rank values correspond to PirateRank ordinals
-	private int SF, Bilge, Sailing, Rigging, DNav, BNav, Gunning, Carpentry, Rumble, TH, Forage, List;
+	private int SF, Bilge, Sailing, Rigging, DNav, BNav, Gunning, Carpentry, Patching, Rumble, TH, Forage, List;
 
 	public YPPPPPirate() {
 	}
@@ -15,8 +15,8 @@ public class YPPPPPirate {
 		name = n;
 	}
 
-	public YPPPPPirate(String n, int sw, int bi, int sa, int ri, int dn, int bn, int gu, int ca, int ru, int tr, int fo,
-			int li) {
+	public YPPPPPirate(String n, int sw, int bi, int sa, int ri, int dn, int bn, int gu, int ca, int pa, int ru,
+			int tr, int fo, int li) {
 		setName(n);
 		setSF(sw);
 		setBilge(bi);
@@ -26,6 +26,7 @@ public class YPPPPPirate {
 		setBNav(bn);
 		setGunning(gu);
 		setCarpentry(ca);
+		setPatching(pa);
 		setRumble(ru);
 		setTH(tr);
 		setForage(fo);
@@ -42,6 +43,7 @@ public class YPPPPPirate {
 		setBNav(copy.getBNav());
 		setGunning(copy.getGunning());
 		setCarpentry(copy.getCarpentry());
+		setPatching(copy.getPatching());
 		setRumble(copy.getRumble());
 		setTH(copy.getTH());
 		setForage(copy.getForage());
@@ -58,6 +60,7 @@ public class YPPPPPirate {
 		tmp.add(DNav);
 		tmp.add(BNav);
 		tmp.add(Carpentry);
+		tmp.add(Patching);
 		tmp.add(SF);
 		tmp.add(Rumble);
 		tmp.add(TH);
@@ -97,6 +100,10 @@ public class YPPPPPirate {
 
 	public void setCarpentry(int v) {
 		Carpentry = v;
+	}
+
+	public void setPatching(int v) {
+		Patching = v;
 	}
 
 	public void setRumble(int v) {
@@ -153,6 +160,10 @@ public class YPPPPPirate {
 
 	public int getCarpentry() {
 		return Carpentry;
+	}
+
+	public int getPatching() {
+		return Patching;
 	}
 
 	public int getRumble() {

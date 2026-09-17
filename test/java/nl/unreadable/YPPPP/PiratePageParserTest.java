@@ -33,6 +33,9 @@ public class PiratePageParserTest {
         // From the HTML: <i><b>Sublime</b></i>/<b>Ultimate</b>
         assertEquals("Carpentry should be Ultimate (8)", 8, pirate.getCarpentry());
 
+        // From the HTML: Apprentice/<b>Distinguished</b> (unbolded experience side)
+        assertEquals("Patching should be Distinguished (2)", 2, pirate.getPatching());
+
         // From the HTML: <b>Paragon</b>/<b>Legendary</b>
         assertEquals("Bilging should be Legendary (7)", 7, pirate.getBilge());
 

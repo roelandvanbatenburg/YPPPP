@@ -30,6 +30,9 @@ public class PiratePageParser {
         pirate.setCarpentry(extractSkillRating(reader, "Carpentry"));
 
         reader = new BufferedReader(new StringReader(htmlContent));
+        pirate.setPatching(extractSkillRating(reader, "Patching"));
+
+        reader = new BufferedReader(new StringReader(htmlContent));
         pirate.setBilge(extractSkillRating(reader, "Bilging"));
 
         reader = new BufferedReader(new StringReader(htmlContent));
@@ -95,13 +98,14 @@ public class PiratePageParser {
     }
 
     private static int parseOceanWideSkill(String line) {
-        // New format: <b>Experience</b>/<b>Ocean-wide</b>
-        // We want the ocean-wide rating (after the slash)
-        int slashIndex = line.indexOf(">/");
+        // Format: Experience/<b>Ocean-wide</b> - experience side is only bolded
+        // once it is notable (e.g. not "Apprentice"), so anchor on the ocean-wide
+        // side's opening tag instead of assuming a closing tag precedes the slash.
+        int slashIndex = line.indexOf("/<b>");
         if (slashIndex == -1)
             return 0;
 
-        String afterSlash = line.substring(slashIndex + 2);
+        String afterSlash = line.substring(slashIndex + 1);
         int startIndex = afterSlash.indexOf("<b>") + 3;
         int endIndex = afterSlash.indexOf("</b>");
 
