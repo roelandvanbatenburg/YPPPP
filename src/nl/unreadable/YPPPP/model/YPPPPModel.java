@@ -8,7 +8,7 @@ import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import nl.unreadable.YPPPP.YPPPPView;
+import nl.unreadable.YPPPP.ShipListView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -25,13 +25,13 @@ public class YPPPPModel {
 
 	private Hashtable<String, YPPPPShip> shipList;
 	private boolean shipDataError;
-	private YPPPPView view;
+	private ShipListView view;
 
 	private DecimalFormat twoDigit = new DecimalFormat("#,##0.00");
 	private DecimalFormat oneDigit = new DecimalFormat("#,##0.0");
 	private DecimalFormat shipName = new DecimalFormat("##00");
 
-	public YPPPPModel(YPPPPView v) {
+	public YPPPPModel(ShipListView v) {
 		view = v;
 		sinking = false;
 		lines = false;
