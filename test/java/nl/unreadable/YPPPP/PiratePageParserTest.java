@@ -25,37 +25,37 @@ public class PiratePageParserTest {
 
         // Verify skill ratings based on the HTML content
         // From the HTML: <b>Paragon</b>/<b>Ultimate</b>
-        assertEquals("Sailing should be Ultimate (7)", 7, pirate.getSailing());
+        assertEquals("Sailing should be Ultimate (8)", 8, pirate.getSailing());
 
         // From the HTML: <b>Solid</b>/<b>Legendary</b>
-        assertEquals("Rigging should be Legendary (6)", 6, pirate.getRigging());
+        assertEquals("Rigging should be Legendary (7)", 7, pirate.getRigging());
 
         // From the HTML: <i><b>Sublime</b></i>/<b>Ultimate</b>
-        assertEquals("Carpentry should be Ultimate (7)", 7, pirate.getCarpentry());
+        assertEquals("Carpentry should be Ultimate (8)", 8, pirate.getCarpentry());
 
         // From the HTML: <b>Paragon</b>/<b>Legendary</b>
-        assertEquals("Bilging should be Legendary (6)", 6, pirate.getBilge());
+        assertEquals("Bilging should be Legendary (7)", 7, pirate.getBilge());
 
         // From the HTML: <b>Expert</b>/<b>Renowned</b>
-        assertEquals("Gunning should be Renowned (4)", 4, pirate.getGunning());
+        assertEquals("Gunning should be Renowned (5)", 5, pirate.getGunning());
 
         // From the HTML: <b>Solid</b>/<b>Master</b>
-        assertEquals("Treasure Haul should be Master (3)", 3, pirate.getTH());
+        assertEquals("Treasure Haul should be Master (4)", 4, pirate.getTH());
 
         // From the HTML: <b>Expert</b>/<b>Respected</b>
-        assertEquals("Navigating should be Respected (2)", 2, pirate.getDNav());
+        assertEquals("Navigating should be Respected (3)", 3, pirate.getDNav());
 
         // From the HTML: <b>Expert</b>/<b>Ultimate</b>
-        assertEquals("Battle Navigation should be Ultimate (7)", 7, pirate.getBNav());
+        assertEquals("Battle Navigation should be Ultimate (8)", 8, pirate.getBNav());
 
         // From the HTML: <b>Expert</b>/<b>Grand-Master</b>
-        assertEquals("Swordfighting should be Grand-Master (5)", 5, pirate.getSF());
+        assertEquals("Swordfighting should be Grand-Master (6)", 6, pirate.getSF());
 
         // From the HTML: <b>Solid</b>/<b>Master</b>
-        assertEquals("Rumble should be Master (3)", 3, pirate.getRumble());
+        assertEquals("Rumble should be Master (4)", 4, pirate.getRumble());
 
         // From the HTML: <b>Solid</b>/<b>Legendary</b>
-        assertEquals("Foraging should be Legendary (6)", 6, pirate.getForage());
+        assertEquals("Foraging should be Legendary (7)", 7, pirate.getForage());
     }
 
     private String loadTestHtmlFile() throws IOException {

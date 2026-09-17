@@ -5,16 +5,7 @@ import java.util.ArrayList;
 public class YPPPPPirate {
 
 	private String name;
-	/*
-	 * 0 Able
-	 * 1 Distinguished
-	 * 2 Respected
-	 * 3 Master
-	 * 4 Renowned
-	 * 5 Grand-Master
-	 * 6 Legendary
-	 * 7 Ultimate
-	 */
+	// Rank values correspond to PirateRank ordinals
 	private int SF, Bilge, Sailing, Rigging, DNav, BNav, Gunning, Carpentry, Rumble, TH, Forage, List;
 
 	public YPPPPPirate() {

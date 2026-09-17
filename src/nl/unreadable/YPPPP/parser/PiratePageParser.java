@@ -1,24 +1,12 @@
 package nl.unreadable.YPPPP.parser;
 
+import nl.unreadable.YPPPP.model.PirateRank;
 import nl.unreadable.YPPPP.model.YPPPPPirate;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.io.IOException;
-import java.util.Hashtable;
 
 public class PiratePageParser {
-    private static final Hashtable<String, Integer> SKILL_TO_INT = new Hashtable<>();
-
-    static {
-        SKILL_TO_INT.put("Able", 0);
-        SKILL_TO_INT.put("Distinguished", 1);
-        SKILL_TO_INT.put("Respected", 2);
-        SKILL_TO_INT.put("Master", 3);
-        SKILL_TO_INT.put("Renowned", 4);
-        SKILL_TO_INT.put("Grand-Master", 5);
-        SKILL_TO_INT.put("Legendary", 6);
-        SKILL_TO_INT.put("Ultimate", 7);
-    }
 
     public static YPPPPPirate parseFromHtml(String htmlContent) throws IOException {
         BufferedReader reader = new BufferedReader(new StringReader(htmlContent));
@@ -121,6 +109,6 @@ public class PiratePageParser {
             return 0;
 
         String skillLevel = afterSlash.substring(startIndex, endIndex);
-        return SKILL_TO_INT.getOrDefault(skillLevel, 0);
+        return PirateRank.toInt(skillLevel);
     }
 }

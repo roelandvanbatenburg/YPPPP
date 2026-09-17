@@ -70,8 +70,6 @@ public class YPPPPView extends JFrame {
 	private Clipboard systemClipboard;
 	private DecimalFormat shipName = new DecimalFormat("##00");
 
-	private Hashtable<String, Integer> statToInt;
-	private Hashtable<Integer, String> intToStat;
 	Pattern statPattern = Pattern.compile("</b>.*/<b>");
 	Pattern oceanStatPattern = Pattern.compile("ocean-wide&nbsp;<b>");
 	Pattern namePattern = Pattern.compile("<td align=\"center\" height=\"32\"><font size=\"[+]1\"><b>");
@@ -134,24 +132,6 @@ public class YPPPPView extends JFrame {
 			System.out.println("Error reading preference.xml");
 			preferenceError = true;
 		}
-		statToInt = new Hashtable<String, Integer>();
-		statToInt.put("Able", 0);
-		statToInt.put("Distinguished", 1);
-		statToInt.put("Respected", 2);
-		statToInt.put("Master", 3);
-		statToInt.put("Renowned", 4);
-		statToInt.put("Grand-Master", 5);
-		statToInt.put("Legendary", 6);
-		statToInt.put("Ultimate", 7);
-		intToStat = new Hashtable<Integer, String>();
-		intToStat.put(0, "Able");
-		intToStat.put(1, "Distinguished");
-		intToStat.put(2, "Respected");
-		intToStat.put(3, "Master");
-		intToStat.put(4, "Renowned");
-		intToStat.put(5, "Grand-Master");
-		intToStat.put(6, "Legendary");
-		intToStat.put(7, "Ultimate");
 	}
 
 	private void drawView() {
