@@ -27,6 +27,15 @@
 		<size>small</size>
 	</Ship>
 	<Ship>
+		<name>fanchuan</name>
+		<cb>4.0</cb>
+		<ram>1.0</ram>
+		<sf>15.75</sf>
+		<sink>26.25</sink>
+		<rock>1.3125</rock>
+		<size>small</size>
+	</Ship>
+	<Ship>
 		<name>longship</name>
 		<cb>2.0</cb>
 		<ram>1.0</ram>
@@ -63,6 +72,15 @@
 		<size>medium</size>
 	</Ship>
 	<Ship>
+		<name>junk</name>
+		<cb>4.0</cb>
+		<ram>3.0</ram>
+		<sf>30.0</sf>
+		<sink>50.0</sink>
+		<rock>2.5</rock>
+		<size>medium</size>
+	</Ship>
+	<Ship>
 		<name>merchant galeon</name>
 		<cb>4.0</cb>
 		<ram>5.0</ram>
@@ -74,6 +92,18 @@
 	<Ship>
 		<name>xebec</name>
 		<cb>3.0</cb>
+		<ram>5.0</ram>
+		<sf>42.0</sf>
+		<sink>70.0</sink>
+		<rock>3.5</rock>
+		<size>large</size>
+	</Ship>
+	<!-- ESTIMATE: Yppedia's own ram-damage table marks War Galleon as
+	     unverified. cb/size are confirmed (large guns, large hull); ram/sf/sink/rock
+	     are extrapolated from xebec (nearest crew-count match) - please double check. -->
+	<Ship>
+		<name>war galleon</name>
+		<cb>4.0</cb>
 		<ram>5.0</ram>
 		<sf>42.0</sf>
 		<sink>70.0</sink>

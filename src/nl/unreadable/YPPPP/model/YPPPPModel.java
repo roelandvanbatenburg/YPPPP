@@ -2,6 +2,7 @@ package nl.unreadable.YPPPP.model;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -40,7 +41,11 @@ public class YPPPPModel {
 		if (shipDataError)
 			v.reportShipDataError();
 		view.setShipList(shipList.keySet());
-		YPPPPShip firstship = (shipList.elements()).nextElement();
+		// Keys are zero-padded XML order ("00sloop", "01cutter", ...), so the
+		// lexicographically smallest key is the first ship listed in ships.xml.
+		// Hashtable iteration order is unrelated to insertion order and shifts
+		// on resize, so it can't be relied on to pick the default ship.
+		YPPPPShip firstship = shipList.get(Collections.min(shipList.keySet()));
 		myShip = new YPPPPShip(firstship);
 		oppShip = new YPPPPShip(firstship);
 		history = new LinkedList<YPPPPShip[]>();
