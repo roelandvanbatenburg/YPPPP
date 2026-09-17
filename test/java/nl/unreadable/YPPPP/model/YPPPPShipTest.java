@@ -13,7 +13,7 @@ public class YPPPPShipTest {
 	@Test
 	public void newShipStartsWithZeroDamage() {
 		YPPPPShip s = ship("sloop", 2.0, 1.0, 12.0, 20.0, 1.0);
-		assertEquals(0.0, s.damage, 0.0001);
+		assertEquals(0.0, s.getDamage(), 0.0001);
 	}
 
 	@Test
@@ -21,7 +21,7 @@ public class YPPPPShipTest {
 		YPPPPShip s = ship("sloop", 2.0, 1.0, 12.0, 20.0, 1.0);
 		s.getShot(2.0);
 		s.getShot(3.0);
-		assertEquals(5.0, s.damage, 0.0001);
+		assertEquals(5.0, s.getDamage(), 0.0001);
 	}
 
 	@Test
@@ -29,7 +29,7 @@ public class YPPPPShipTest {
 		YPPPPShip s = ship("sloop", 2.0, 1.0, 12.0, 20.0, 1.5);
 		s.hitRocks();
 		s.hitRocks();
-		assertEquals(3.0, s.damage, 0.0001);
+		assertEquals(3.0, s.getDamage(), 0.0001);
 	}
 
 	@Test
@@ -40,8 +40,8 @@ public class YPPPPShipTest {
 		a.ram(b);
 		b.ram(a);
 
-		assertEquals(5.0, a.damage, 0.0001);
-		assertEquals(1.0, b.damage, 0.0001);
+		assertEquals(5.0, a.getDamage(), 0.0001);
+		assertEquals(1.0, b.getDamage(), 0.0001);
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class YPPPPShipTest {
 		YPPPPShip s = ship("sloop", 2.0, 1.0, 12.0, 20.0, 1.0);
 		s.getShot(10.0);
 		s.reset();
-		assertEquals(0.0, s.damage, 0.0001);
+		assertEquals(0.0, s.getDamage(), 0.0001);
 	}
 
 	@Test
@@ -59,13 +59,13 @@ public class YPPPPShipTest {
 
 		YPPPPShip copy = new YPPPPShip(original);
 
-		assertEquals(original.type, copy.type);
-		assertEquals(original.cb_damage, copy.cb_damage, 0.0001);
-		assertEquals(original.ram_damage, copy.ram_damage, 0.0001);
-		assertEquals(original.sf_hp, copy.sf_hp, 0.0001);
-		assertEquals(original.sink_hp, copy.sink_hp, 0.0001);
-		assertEquals(original.rock_damage, copy.rock_damage, 0.0001);
-		assertEquals(original.damage, copy.damage, 0.0001);
+		assertEquals(original.getType(), copy.getType());
+		assertEquals(original.getCb_damage(), copy.getCb_damage(), 0.0001);
+		assertEquals(original.getRam_damage(), copy.getRam_damage(), 0.0001);
+		assertEquals(original.getSf_hp(), copy.getSf_hp(), 0.0001);
+		assertEquals(original.getSink_hp(), copy.getSink_hp(), 0.0001);
+		assertEquals(original.getRock_damage(), copy.getRock_damage(), 0.0001);
+		assertEquals(original.getDamage(), copy.getDamage(), 0.0001);
 	}
 
 	@Test
@@ -76,8 +76,8 @@ public class YPPPPShipTest {
 		YPPPPShip warGalleon = ship("war galleon", 4.0, 5.0, 42.0, 70.0, 3.5);
 		s.changeType(warGalleon);
 
-		assertEquals("war galleon", s.type);
-		assertEquals(4.0, s.cb_damage, 0.0001);
-		assertEquals(4.0, s.damage, 0.0001); // damage is NOT reset by a type change
+		assertEquals("war galleon", s.getType());
+		assertEquals(4.0, s.getCb_damage(), 0.0001);
+		assertEquals(4.0, s.getDamage(), 0.0001); // damage is NOT reset by a type change
 	}
 }

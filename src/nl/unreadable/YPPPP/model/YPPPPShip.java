@@ -1,15 +1,20 @@
 package nl.unreadable.YPPPP.model;
 
-public class YPPPPShip {
-	String type;
-	double cb_damage; // 1 = small, 1+1/3 = medium, 2 = large
-	double ram_damage; // how much damage a ship deals when ramming
-	double sf_hp; // damage to max
-	double sink_hp; // damage to sink
-	double rock_damage; // damage that the ship receives when it hits rocks
-	YPPPPSize size; // ship class
+import lombok.Getter;
+import lombok.Setter;
 
-	double damage; // current damage
+@Getter
+@Setter
+public class YPPPPShip {
+	private String type;
+	private double cb_damage; // 1 = small, 1+1/3 = medium, 2 = large
+	private double ram_damage; // how much damage a ship deals when ramming
+	private double sf_hp; // damage to max
+	private double sink_hp; // damage to sink
+	private double rock_damage; // damage that the ship receives when it hits rocks
+	private YPPPPSize size; // ship class
+
+	private double damage; // current damage
 
 	public YPPPPShip(YPPPPShip prototype) {
 		type = prototype.type;

@@ -67,7 +67,7 @@ public class YPPPPModel {
 	}
 
 	private double getFullHealth(YPPPPShip ship) {
-		return (sinking ? ship.sink_hp : ship.sf_hp);
+		return (sinking ? ship.getSink_hp() : ship.getSf_hp());
 	}
 
 	private double getSimpleDamage(boolean me) {
@@ -75,7 +75,7 @@ public class YPPPPModel {
 	}
 
 	private double getSimpleDamage(YPPPPShip ship) {
-		return ship.damage;
+		return ship.getDamage();
 	}
 
 	/**
@@ -88,8 +88,8 @@ public class YPPPPModel {
 	}
 
 	private String getMoreInfo(YPPPPShip ship) {
-		return ((ship.damage >= (sinking ? ship.sink_hp : ship.sf_hp)) ? "Max"
-				: (lines ? oneDigit : twoDigit).format((lines ? 6 : 100) * ship.damage / (sinking ? ship.sink_hp : ship.sf_hp))
+		return ((ship.getDamage() >= (sinking ? ship.getSink_hp() : ship.getSf_hp())) ? "Max"
+				: (lines ? oneDigit : twoDigit).format((lines ? 6 : 100) * ship.getDamage() / (sinking ? ship.getSink_hp() : ship.getSf_hp()))
 						+ (lines ? "/6.0" : "%"));
 	}
 
@@ -109,7 +109,7 @@ public class YPPPPModel {
 	 */
 	public void shoot(boolean me) {
 		storeState();
-		(me ? myShip : oppShip).getShot((me ? oppShip : myShip).cb_damage);
+		(me ? myShip : oppShip).getShot((me ? oppShip : myShip).getCb_damage());
 		Update();
 	}
 
@@ -167,7 +167,7 @@ public class YPPPPModel {
 	 * @param me   true when player, false when opponent
 	 */
 	public void changeShipType(String type, boolean me) {
-		if (!type.equals((me ? myShip : oppShip).type)) {
+		if (!type.equals((me ? myShip : oppShip).getType())) {
 			storeState();
 			(me ? myShip : oppShip).changeType(shipList.get(type));
 			Update();
@@ -191,7 +191,7 @@ public class YPPPPModel {
 			NodeList nodeLst = doc.getElementsByTagName("Ship");
 			for (int i = 0; i < nodeLst.getLength(); ++i) {
 				YPPPPShip ship = readShip(nodeLst, i);
-				shipList.put(ship.type, ship);
+				shipList.put(ship.getType(), ship);
 			}
 		} catch (Exception e) {
 			shipDataError = true;
@@ -247,7 +247,7 @@ public class YPPPPModel {
 	 * @return string type
 	 */
 	public String getShipType(boolean me) {
-		return (me ? myShip : oppShip).type;
+		return (me ? myShip : oppShip).getType();
 	}
 
 	private void storeState() {
