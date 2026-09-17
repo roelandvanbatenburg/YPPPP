@@ -19,7 +19,6 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -52,6 +51,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import nl.unreadable.YPPPP.model.PirateRoster;
 import nl.unreadable.YPPPP.model.YPPPPModel;
 import nl.unreadable.YPPPP.model.YPPPPPirate;
 import nl.unreadable.YPPPP.parser.HttpPirateFetcher;
@@ -95,14 +95,12 @@ public class YPPPPView extends JFrame implements ShipListView {
 	private JTextField nameTxt;
 	private JLabel nameLab;
 	private JTable pirateTable;
-	private Hashtable<String, Integer[]> pirateData;
+	private PirateRoster roster = new PirateRoster();
 	private String[] columnNames = { "Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Patching",
 			"Swordfighting", "Rumble", "DNav", "BNav", "TH", "Forage", "?" };
-	private static Vector<String> blacklist, goldlist;
 	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piGoldBut, piBlackBut;
 	private JComboBox<String> oceanChoice;
 	private static String ocean = "emerald";
-	private final int listVoid = 20, listGold = 10, listBlack = -1;
 	private static boolean preferenceError = false;
 
 	// PS
@@ -196,7 +194,6 @@ public class YPPPPView extends JFrame implements ShipListView {
 		allBox.add(nameBox);
 
 		// Table to show all the data
-		pirateData = new Hashtable<String, Integer[]>();
 		pirateTable = new JTable(new HashTableModel());
 		pirateTable.setAutoCreateRowSorter(true);
 		JScrollPane scrollPane = new JScrollPane(pirateTable);
@@ -403,8 +400,6 @@ public class YPPPPView extends JFrame implements ShipListView {
 	 */
 	private void getPreferences() {
 		try {
-			goldlist = new Vector<String>();
-			blacklist = new Vector<String>();
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
 			ocean = doc.getElementsByTagName("Ocean").item(0).getAttributes().item(0).getNodeValue();
 			int listcnt = Integer
@@ -413,9 +408,9 @@ public class YPPPPView extends JFrame implements ShipListView {
 			for (int i = 0; i < listcnt; i++) {
 				test = doc.getElementsByTagName("List").item(0).getAttributes().item(i);
 				if (test.getNodeValue().equals("black"))
-					blacklist.add(test.getNodeName());
+					roster.seedBlack(test.getNodeName());
 				if (test.getNodeValue().equals("gold"))
-					goldlist.add(test.getNodeName());
+					roster.seedGold(test.getNodeName());
 			}
 		} catch (Exception e) {
 			preferenceError = true;
@@ -435,16 +430,16 @@ public class YPPPPView extends JFrame implements ShipListView {
 			root.appendChild(oceanelm);
 			// lists
 			Element listcntelm = doc.createElement("ListCnt");
-			listcntelm.setAttribute("Count", "" + (blacklist.size() + goldlist.size()));
+			listcntelm.setAttribute("Count", "" + (roster.blackNames().size() + roster.goldNames().size()));
 			root.appendChild(listcntelm);
 			Element listelm = doc.createElement("List");
 			// black
-			for (Enumeration<String> e = blacklist.elements(); e.hasMoreElements();) {
-				listelm.setAttribute(e.nextElement(), "black");
+			for (String name : roster.blackNames()) {
+				listelm.setAttribute(name, "black");
 			}
 			// gold
-			for (Enumeration<String> e = goldlist.elements(); e.hasMoreElements();) {
-				listelm.setAttribute(e.nextElement(), "gold");
+			for (String name : roster.goldNames()) {
+				listelm.setAttribute(name, "gold");
 			}
 			root.appendChild(listelm);
 
@@ -468,10 +463,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 			return;
 		}
 
-		int list = (goldlist.contains(p.getName()) ? listGold : (blacklist.contains(p.getName()) ? listBlack : listVoid));
-		Integer[] test = { p.getGunning(), p.getBilge(), p.getSailing(), p.getRigging(), p.getCarpentry(),
-				p.getPatching(), p.getSF(), p.getRumble(), p.getDNav(), p.getBNav(), p.getTH(), p.getForage(), list };
-		pirateData.put(p.getName(), test);
+		roster.add(p);
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 
@@ -481,43 +473,26 @@ public class YPPPPView extends JFrame implements ShipListView {
 	 */
 	private void clear() {
 		int index = pirateTable.getSelectedRow();
-		pirateData.remove(pirateTable.getValueAt(index, 0));
-		// ((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
+		roster.remove((String) pirateTable.getValueAt(index, 0));
 		((HashTableModel) pirateTable.getModel()).fireTableRowsDeleted(index, index);
 	}
 
 	private void clearAll() {
-		pirateData.clear();
+		roster.clear();
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 
 	private void goldlist() {
 		int index = pirateTable.getSelectedRow();
 		String name = (String) pirateTable.getValueAt(index, 0);
-		Integer[] temp = pirateData.get(name);
-		blacklist.remove(name);
-		if (goldlist.contains(name)) {
-			goldlist.remove(name);
-			temp[temp.length - 1] = listVoid;
-		} else {
-			goldlist.add(name);
-			temp[temp.length - 1] = listGold;
-		}
+		roster.toggleGold(name);
 		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, columnNames.length - 1);
 	}
 
 	private void blacklist() {
 		int index = pirateTable.getSelectedRow();
 		String name = (String) pirateTable.getValueAt(index, 0);
-		Integer[] temp = pirateData.get(name);
-		goldlist.remove(name);
-		if (blacklist.contains(name)) {
-			blacklist.remove(name);
-			temp[temp.length - 1] = listVoid;
-		} else {
-			blacklist.add(name);
-			temp[temp.length - 1] = listBlack;
-		}
+		roster.toggleBlack(name);
 		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, columnNames.length - 1);
 	}
 
@@ -581,7 +556,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 		public static final long serialVersionUID = 9L;
 
 		public int getRowCount() {
-			return pirateData.size();
+			return roster.size();
 		}
 
 		public int getColumnCount() {
@@ -589,20 +564,13 @@ public class YPPPPView extends JFrame implements ShipListView {
 		}
 
 		public Object getValueAt(int row, int column) {
-			int cnt = 0;
-			Vector<String> keys = new Vector<String>(pirateData.keySet());
-			Collections.sort(keys);
-			for (Enumeration<String> e = keys.elements(); e.hasMoreElements();) {
-				Object el = e.nextElement();
-				if (cnt == row) {
-					if (column == 0) // name
-						return el;
-					Integer[] dat = pirateData.get(el);
-					return dat[column - 1];
-				}
-				cnt++;
-			}
-			return new Object();
+			java.util.List<String> names = roster.namesSorted();
+			if (row < 0 || row >= names.size())
+				return new Object();
+			String name = names.get(row);
+			if (column == 0) // name
+				return name;
+			return roster.getStats(name)[column - 1];
 		}
 	}
 
@@ -644,15 +612,15 @@ public class YPPPPView extends JFrame implements ShipListView {
 					case 8:
 						cell.setBackground(Color.RED);
 						break; // Ult
-					case listBlack:
+					case PirateRoster.LIST_BLACK:
 						cell.setForeground(Color.BLACK);
 						cell.setBackground(Color.BLACK);
 						break; // Blacklist
-					case listGold:
+					case PirateRoster.LIST_GOLD:
 						cell.setForeground(Color.YELLOW);
 						cell.setBackground(Color.YELLOW);
 						break; // Goldlist
-					case listVoid:
+					case PirateRoster.LIST_VOID:
 						cell.setForeground(Color.WHITE);
 						cell.setBackground(Color.WHITE);
 						break; // no list
@@ -734,8 +702,8 @@ public class YPPPPView extends JFrame implements ShipListView {
 
 	private class piCopyHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			systemClipboard
-					.setContents(new StringSelection("/job " + pirateTable.getValueAt(pirateTable.getSelectedRow(), 0)), null);
+			systemClipboard.setContents(new StringSelection(
+					roster.jobCopyText((String) pirateTable.getValueAt(pirateTable.getSelectedRow(), 0))), null);
 		}
 	}
 
