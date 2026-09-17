@@ -12,17 +12,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.net.URL;
-import java.text.DecimalFormat;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Set;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -44,50 +38,32 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import nl.unreadable.YPPPP.model.PirateRoster;
-import nl.unreadable.YPPPP.model.YPPPPModel;
-import nl.unreadable.YPPPP.model.YPPPPPirate;
-import nl.unreadable.YPPPP.parser.HttpPirateFetcher;
-import nl.unreadable.YPPPP.parser.PirateFetcher;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
-public class YPPPPView extends JFrame implements ShipListView {
+/**
+ * Pure Swing view: renders whatever it is told to render, and reports
+ * every user action to its {@link YPPPPViewListener}. Holds no model
+ * reference and no business logic.
+ */
+public class YPPPPView extends JFrame {
 	public static final long serialVersionUID = 9L;
 	// General
 	private YPPPPView view;
 	private Container content;
 	private JPanel allBox;
 	private Clipboard systemClipboard;
-	private DecimalFormat shipName = new DecimalFormat("##00");
-
-	Pattern statPattern = Pattern.compile("</b>.*/<b>");
-	Pattern oceanStatPattern = Pattern.compile("ocean-wide&nbsp;<b>");
-	Pattern namePattern = Pattern.compile("<td align=\"center\" height=\"32\"><font size=\"[+]1\"><b>");
-	Matcher tempMatch;
-	private PirateFetcher pirateFetcher = new HttpPirateFetcher();
+	private YPPPPViewListener listener;
 
 	// YPPPPPanel
-
-	// private JPanel yPanel;
-	private JCheckBox dcCheck, piCheck;// psCheck;
+	private JCheckBox dcCheck, piCheck;
 	private JButton exitButton;
 	// DC
 	private JPanel dcPanel;
 	boolean dc = true;
-	private YPPPPModel model;
 	private JComboBox<String> myShipChoice, oppShipChoice;
 	private JLabel myDamageLab, myMoreInfoLab, oppDamageLab, oppMoreInfoLab;
-	private JButton collideButton, undoButton, resetButton, dcCopyButton; // redoButton;
+	private JButton collideButton, undoButton, resetButton, dcCopyButton;
 
 	// PI
 	private JPanel piPanel;
@@ -95,16 +71,11 @@ public class YPPPPView extends JFrame implements ShipListView {
 	private JTextField nameTxt;
 	private JLabel nameLab;
 	private JTable pirateTable;
-	private PirateRoster roster = new PirateRoster();
+	private List<PirateRow> pirateRows = new ArrayList<PirateRow>();
 	private String[] columnNames = { "Name", "Gunning", "Bilge", "Sailing", "Rigging", "Carpentry", "Patching",
 			"Swordfighting", "Rumble", "DNav", "BNav", "TH", "Forage", "?" };
 	private JButton piEnterBut, piCopyBut, piDelBut, piClearBut, piGoldBut, piBlackBut;
 	private JComboBox<String> oceanChoice;
-	private static String ocean = "emerald";
-	private static boolean preferenceError = false;
-
-	// PS
-	// private JPanel psPanel;
 
 	public YPPPPView() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
@@ -124,12 +95,10 @@ public class YPPPPView extends JFrame implements ShipListView {
 		dcPanel = dcPanel();
 		piPanel = piPanel();
 		drawView();
+	}
 
-		getPreferences();
-		if (preferenceError) {
-			System.out.println("Error reading preference.xml");
-			preferenceError = true;
-		}
+	public void setListener(YPPPPViewListener l) {
+		listener = l;
 	}
 
 	private void drawView() {
@@ -184,7 +153,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 			public void keyPressed(KeyEvent evt) {
 				int key = evt.getKeyCode();
 				if (key == KeyEvent.VK_ENTER)
-					addPirate();
+					listener.onAddPirate(nameTxt.getText());
 			}
 		});
 		nameBox.add(nameTxt);
@@ -282,7 +251,6 @@ public class YPPPPView extends JFrame implements ShipListView {
 		String[] oceans = { "cerulean", "emerald", "merideia", "opal", "jade", "crimson", "ice" };
 		oceanChoice = new JComboBox<String>(oceans);
 		oceanChoice.addActionListener(new OceanChangeHandler(oceanChoice));
-		oceanChoice.setSelectedItem(ocean);
 		buttonBoxXO.add(oceanChoice);
 		buttonBox.add(buttonBoxXO);
 		allBox.add(buttonBox);
@@ -342,8 +310,6 @@ public class YPPPPView extends JFrame implements ShipListView {
 		undoButton = new JButton("Undo");
 		undoButton.addActionListener(new UndoHandler());
 		buttonBox.add(undoButton);
-		// redoButton = new JButton("Redo"); redoButton.addActionListener(new
-		// RedoHandler());buttonBox.add(redoButton);
 		resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ResetHandler());
 		buttonBox.add(resetButton);
@@ -358,141 +324,66 @@ public class YPPPPView extends JFrame implements ShipListView {
 	}
 
 	/*
-	 * Ship list stuff
+	 * Rendering - called by the controller
 	 */
-	public void setModel(YPPPPModel m) {
-		model = m;
-	}
-
-	public void reportShipDataError() {
-		System.out.println("Your \"ships.xml\" is missing or damaged, please replace/repair it");
-		System.exit(-1);
-	}
-
-	public void setShipList(Set<String> s) {
-		Vector<String> ships = new Vector<String>(s);
-		Collections.sort(ships);
-		for (String ship : ships) {
-			ship = ship.substring(2);
-			myShipChoice.addItem(ship);
-			oppShipChoice.addItem(ship);
+	public void setShipChoices(List<String> shipNames) {
+		myShipChoice.removeAllItems();
+		oppShipChoice.removeAllItems();
+		for (String name : shipNames) {
+			myShipChoice.addItem(name);
+			oppShipChoice.addItem(name);
 		}
 		myShipChoice.addActionListener(new ShipChangeHandler(true, myShipChoice));
 		oppShipChoice.addActionListener(new ShipChangeHandler(false, oppShipChoice));
 	}
 
-	/*
-	 * Update
-	 */
-	public void Update() {
-		myShipChoice.setSelectedItem((model.getShipType(true).substring(2)));
-		myDamageLab.setText(model.getDamage(true));
-		myMoreInfoLab.setText(model.getMoreInfo(true));
-		oppShipChoice.setSelectedItem((model.getShipType(false).substring(2)));
-		oppDamageLab.setText(model.getDamage(false));
-		oppMoreInfoLab.setText(model.getMoreInfo(false));
-		undoButton.setEnabled(model.hasUndo());
-		// redoButton.setEnabled(model.hasRedo());
+	public void setMyShipSelection(String name) {
+		myShipChoice.setSelectedItem(name);
 	}
 
-	/*
-	 * XML reading and writing
-	 */
-	private void getPreferences() {
-		try {
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File("preferences.xml"));
-			ocean = doc.getElementsByTagName("Ocean").item(0).getAttributes().item(0).getNodeValue();
-			int listcnt = Integer
-					.parseInt(doc.getElementsByTagName("ListCnt").item(0).getAttributes().item(0).getNodeValue());
-			Node test;
-			for (int i = 0; i < listcnt; i++) {
-				test = doc.getElementsByTagName("List").item(0).getAttributes().item(i);
-				if (test.getNodeValue().equals("black"))
-					roster.seedBlack(test.getNodeName());
-				if (test.getNodeValue().equals("gold"))
-					roster.seedGold(test.getNodeName());
-			}
-		} catch (Exception e) {
-			preferenceError = true;
-		}
+	public void setOppShipSelection(String name) {
+		oppShipChoice.setSelectedItem(name);
 	}
 
-	private void savePreferences() {
-		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder parser = factory.newDocumentBuilder();
-			Document doc = parser.newDocument();
-			Element root = doc.createElement("Preferences");
-			doc.appendChild(root);
-			// ocean
-			Element oceanelm = doc.createElement("Ocean");
-			oceanelm.setAttribute("Ocean", ocean);
-			root.appendChild(oceanelm);
-			// lists
-			Element listcntelm = doc.createElement("ListCnt");
-			listcntelm.setAttribute("Count", "" + (roster.blackNames().size() + roster.goldNames().size()));
-			root.appendChild(listcntelm);
-			Element listelm = doc.createElement("List");
-			// black
-			for (String name : roster.blackNames()) {
-				listelm.setAttribute(name, "black");
-			}
-			// gold
-			for (String name : roster.goldNames()) {
-				listelm.setAttribute(name, "gold");
-			}
-			root.appendChild(listelm);
-
-			// write to file
-			Transformer transformer = TransformerFactory.newInstance().newTransformer();
-			transformer.transform(new DOMSource(doc),
-					new StreamResult(new BufferedWriter(new FileWriter(new File("preferences.xml")))));
-		} catch (Exception e) {
-			preferenceError = true;
-			System.out.println(e);
-		}
+	public void setMyDamage(String text) {
+		myDamageLab.setText(text);
 	}
 
-	/*
-	 * Adding pirates to table
-	 */
-	private void addPirate() {
-		YPPPPPirate p = pirateFetcher.fetch(ocean, nameTxt.getText());
-		if (p == null) {
-			System.out.println("Pirate not found (are you on the right ocean?)");
-			return;
-		}
+	public void setMyMoreInfo(String text) {
+		myMoreInfoLab.setText(text);
+	}
 
-		roster.add(p);
+	public void setOppDamage(String text) {
+		oppDamageLab.setText(text);
+	}
+
+	public void setOppMoreInfo(String text) {
+		oppMoreInfoLab.setText(text);
+	}
+
+	public void setUndoEnabled(boolean enabled) {
+		undoButton.setEnabled(enabled);
+	}
+
+	public void setOceanSelection(String ocean) {
+		oceanChoice.setSelectedItem(ocean);
+	}
+
+	public void setPirateRows(List<PirateRow> rows) {
+		pirateRows = rows;
 		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
 	}
 
-	/*
-	 * Managing Lists
-	 */
-	private void clear() {
-		int index = pirateTable.getSelectedRow();
-		roster.remove((String) pirateTable.getValueAt(index, 0));
-		((HashTableModel) pirateTable.getModel()).fireTableRowsDeleted(index, index);
+	public void copyToClipboard(String text) {
+		systemClipboard.setContents(new StringSelection(text), null);
 	}
 
-	private void clearAll() {
-		roster.clear();
-		((HashTableModel) pirateTable.getModel()).fireTableDataChanged();
-	}
-
-	private void goldlist() {
-		int index = pirateTable.getSelectedRow();
-		String name = (String) pirateTable.getValueAt(index, 0);
-		roster.toggleGold(name);
-		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, columnNames.length - 1);
-	}
-
-	private void blacklist() {
-		int index = pirateTable.getSelectedRow();
-		String name = (String) pirateTable.getValueAt(index, 0);
-		roster.toggleBlack(name);
-		((HashTableModel) pirateTable.getModel()).fireTableCellUpdated(index, columnNames.length - 1);
+	private String selectedPirateName() {
+		int row = pirateTable.getSelectedRow();
+		if (row < 0) {
+			return null;
+		}
+		return (String) pirateTable.getValueAt(row, 0);
 	}
 
 	/*
@@ -549,13 +440,13 @@ public class YPPPPView extends JFrame implements ShipListView {
 	};
 
 	/*
-	 * Hashtable Stuff
+	 * Pirate table model - backed by the last snapshot the controller pushed
 	 */
 	private class HashTableModel extends AbstractTableModel {
 		public static final long serialVersionUID = 9L;
 
 		public int getRowCount() {
-			return roster.size();
+			return pirateRows.size();
 		}
 
 		public int getColumnCount() {
@@ -563,13 +454,12 @@ public class YPPPPView extends JFrame implements ShipListView {
 		}
 
 		public Object getValueAt(int row, int column) {
-			java.util.List<String> names = roster.namesSorted();
-			if (row < 0 || row >= names.size())
+			if (row < 0 || row >= pirateRows.size())
 				return new Object();
-			String name = names.get(row);
+			PirateRow pirateRow = pirateRows.get(row);
 			if (column == 0) // name
-				return name;
-			return roster.getStats(name)[column - 1];
+				return pirateRow.getName();
+			return pirateRow.getStats()[column - 1];
 		}
 	}
 
@@ -633,7 +523,9 @@ public class YPPPPView extends JFrame implements ShipListView {
 	}
 
 	/*
-	 * Handlers (checkbox/button/enter)
+	 * Handlers (checkbox/button/enter) - forward to the listener, except for
+	 * the DC/PI panel toggles, which are pure layout state with no model
+	 * involvement.
 	 */
 	private class panelHandler implements ActionListener {
 		private JPanel target;
@@ -650,59 +542,52 @@ public class YPPPPView extends JFrame implements ShipListView {
 
 	private class ExitHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			savePreferences();
-			if (preferenceError) {
-				System.out.println("Error writing to preference.xml");
-			}
-			System.exit(0);
+			listener.onExit();
 		}
 	}
 
 	private class SinkingHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			model.toggleSinking();
+			listener.onSinkingToggled();
 		}
 	}
 
 	private class LinesHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			model.toggleLines();
+			listener.onLinesToggled();
 		}
 	}
 
 	private class CollideHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			model.collide();
+			listener.onCollide();
 		}
 	}
 
 	private class UndoHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			model.undo();
+			listener.onUndo();
 		}
 	}
 
-	/*
-	 * private class RedoHandler implements ActionListener{
-	 * public void actionPerformed(ActionEvent e){model.redo();}
-	 * }
-	 */
 	private class ResetHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			model.reset();
+			listener.onReset();
 		}
 	}
 
 	private class dcCopyHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			systemClipboard.setContents(new StringSelection(model.getCopyText()), null);
+			listener.onDcCopyRequested();
 		}
 	}
 
 	private class piCopyHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			systemClipboard.setContents(new StringSelection(
-					roster.jobCopyText((String) pirateTable.getValueAt(pirateTable.getSelectedRow(), 0))), null);
+			String name = selectedPirateName();
+			if (name != null) {
+				listener.onJobCopyRequested(name);
+			}
 		}
 	}
 
@@ -716,7 +601,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			model.changeShipType(shipName.format(combobox.getSelectedIndex()) + (String) combobox.getSelectedItem(), me);
+			listener.onShipSelected(me, (String) combobox.getSelectedItem());
 		}
 	}
 
@@ -728,7 +613,7 @@ public class YPPPPView extends JFrame implements ShipListView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			model.shoot(me);
+			listener.onShot(me);
 		}
 	}
 
@@ -740,25 +625,28 @@ public class YPPPPView extends JFrame implements ShipListView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			model.hitRocks(me);
+			listener.onHitRocks(me);
 		}
 	}
 
 	private class EnterHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			addPirate();
+			listener.onAddPirate(nameTxt.getText());
 		}
 	}
 
 	private class ClearHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			clear();
+			String name = selectedPirateName();
+			if (name != null) {
+				listener.onDeletePirate(name);
+			}
 		}
 	}
 
 	private class ClearAllHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			clearAll();
+			listener.onClearAllPirates();
 		}
 	}
 
@@ -770,19 +658,25 @@ public class YPPPPView extends JFrame implements ShipListView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			ocean = (String) combobox.getSelectedItem();
+			listener.onOceanChanged((String) combobox.getSelectedItem());
 		}
 	}
 
 	private class BlackListHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			blacklist();
+			String name = selectedPirateName();
+			if (name != null) {
+				listener.onToggleBlack(name);
+			}
 		}
 	}
 
 	private class GoldListHandler implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			goldlist();
+			String name = selectedPirateName();
+			if (name != null) {
+				listener.onToggleGold(name);
+			}
 		}
 	}
 }
